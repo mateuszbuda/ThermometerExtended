@@ -1,10 +1,10 @@
 package pl.narfsoftware.pl.thermometer;
 
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 
-public class DataPane extends Activity
+public class DataPane extends ActionBarActivity
 {
 
 	@Override
