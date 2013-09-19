@@ -19,7 +19,7 @@ public class DataPane extends ActionBarActivity
 	{
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.data_pane, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 }
