@@ -5,5 +5,88 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_history">History</string>
+    <string name="title_activity_history">HistoryActivity</string>
+    <string name="prefs_header">Settings</string>
+    <string name="prefs_sensors">Sensors</string>
+    <string name="prefs_sensors_title">Choose sensors</string>
+    <string name="ambient_temp">Temprature</string>
+    <string name="relative_humidity">Relative Humidity</string>
+    <string name="absolute_humidity">Absolute Humidity</string>
+    <string name="pressure">Pressure</string>
+    <string name="dew_point">Dew Point</string>
+    <string name="light">Light</string>
+    <string name="magnetic_field">Magnetic Field</string>
+
+    <string-array name="prefs_freq_keys">
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>never</item>
+    </string-array>
+    <string-array name="prefs_freq_vals">
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>0</item>
+    </string-array>
+
+    <string name="prefs_freq_title">Update Frequency</string>
+    <string name="prefs_freq_key">update_frequency</string>
+
+    <string-array name="prefs_temp_unit_keys">
+        <item>Celsius</item>
+        <item>Fahrenheit</item>
+        <item>Kelvin</item>
+    </string-array>
+    <string-array name="prefs_temp_unit_vals">
+        <item>Celsius</item>
+        <item>Fahrenheit</item>
+        <item>Kelvin</item>
+    </string-array>
+
+    <string name="prefs_temp_unit_title">Temperature Unit</string>
+    <string name="prefs_temp_unit_key">temp_unit</string>
+    <string name="prefs_save_data_key">save_data</string>
+    <string name="prefs_save_data_title">Save Data</string>
+    <string name="prefs_save_data_summary_on">Stop saving data</string>
+    <string name="prefs_save_data_summary_off">Start saving data</string>
+
+    <string-array name="prefs_background_color_keys">
+        <item>Alice Blue</item>
+        <item>Aquamarine</item>
+        <item>Cornsilk</item>
+        <item>Dark Sea Green</item>
+        <item>Green Yellow</item>
+        <item>Grainsboro</item>
+        <item>Hot Pink</item>
+        <item>Lemon Chiffon</item>
+        <item>Light Gray</item>
+        <item>Lime</item>
+        <item>Peach Puff</item>
+        <item>Plum</item>
+        <item>Sandy Brown</item>
+        <item>Snow</item>
+        <item>White</item>
+    </string-array>
+    <string-array name="prefs_background_color_vals">
+        <item>#F0F8FF</item>
+        <item>#7FFFD4</item>
+        <item>#FFF8DC</item>
+        <item>#8FBC8F</item>
+        <item>#ADFF2F</item>
+        <item>#DCDCDC</item>
+        <item>#FF69B4</item>
+        <item>#FFFACD</item>
+        <item>#D3D3D3</item>
+        <item>#00FF00</item>
+        <item>#FFDAB9</item>
+        <item>#DDA0DD</item>
+        <item>#F4A460</item>
+        <item>#FFFAFA</item>
+        <item>#FFFFFF</item>
+    </string-array>
+
+    <string name="prefs_background_color_title">Background Color</string>
+    <string name="prefs_background_color_key">background_color</string>
 
 </resources>
