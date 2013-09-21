@@ -2,14 +2,20 @@ package pl.narfsoftware.thermometer;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 
 public class HistoryActivity extends Activity
 {
+	static final String TAG = "HistoryActivity";
+
+	RelativeLayout historyBackground;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -19,6 +25,20 @@ public class HistoryActivity extends Activity
 		// Show the Up button in the action bar.
 		setupActionBar();
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+		historyBackground = (RelativeLayout) findViewById(R.id.historyLayout);
+		historyBackground.setBackgroundColor(Color.parseColor(PreferenceManager
+				.getDefaultSharedPreferences(this).getString(
+						"background_color", "#FFF0F8FF")));
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		historyBackground.setBackgroundColor(Color.parseColor(PreferenceManager
+				.getDefaultSharedPreferences(this).getString(
+						"background_color", "#00BFB9")));
 	}
 
 	/**

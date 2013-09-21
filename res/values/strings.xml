@@ -5,7 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_history">History</string>
-    <string name="title_activity_history">HistoryActivity</string>
+    <string name="title_activity_history">History</string>
     <string name="prefs_header">Settings</string>
     <string name="prefs_sensors">Sensors</string>
     <string name="prefs_sensors_title">Choose sensors</string>

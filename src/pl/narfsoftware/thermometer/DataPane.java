@@ -1,19 +1,26 @@
 package pl.narfsoftware.thermometer;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewConfiguration;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
-public class DataPane extends ActionBarActivity
+public class DataPane extends ActionBarActivity implements SensorEventListener
 {
 	static final String TAG = "DataPane";
 
@@ -24,6 +31,16 @@ public class DataPane extends ActionBarActivity
 
 	ListView sensorsDataList;
 	RelativeLayout dataPaneBackground;
+	TextView test;
+
+	SensorManager sensorManager;
+	Sensor[] sensors;
+
+	static final int sTemprature = 0;
+	static final int sRelativeHumidity = 1;
+	static final int sPressure = 2;
+	static final int sLight = 3;
+	static final int sMagneticField = 4;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -39,7 +56,7 @@ public class DataPane extends ActionBarActivity
 
 		dataPaneBackground.setBackgroundColor(Color
 				.parseColor(PreferenceManager.getDefaultSharedPreferences(this)
-						.getString("background_color", "#00BFB9")));
+						.getString("background_color", "#FFF0F8FF")));
 
 		// List<HashMap<String, Object>> data = null;
 
@@ -47,6 +64,22 @@ public class DataPane extends ActionBarActivity
 		// R.layout.sensor_data_item, FROM, TO);
 
 		// sensorsDataList.setAdapter(adapter);
+
+		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		List<Sensor> deviceSensors = sensorManager
+				.getSensorList(Sensor.TYPE_ALL);
+
+		sensors[sTemprature] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+		sensors[sPressure] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_PRESSURE);
+		sensors[sRelativeHumidity] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+		sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+		sensors[sMagneticField] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+		Log.d(TAG, "onCreated");
 	}
 
 	@Override
@@ -56,6 +89,16 @@ public class DataPane extends ActionBarActivity
 		dataPaneBackground.setBackgroundColor(Color
 				.parseColor(PreferenceManager.getDefaultSharedPreferences(this)
 						.getString("background_color", "#00BFB9")));
+
+		sensorManager.registerListener(this, sTemprature,
+				SensorManager.SENSOR_DELAY_NORMAL);
+	}
+
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		sensorManager.unregisterListener(this);
 	}
 
 	@Override
@@ -101,6 +144,20 @@ public class DataPane extends ActionBarActivity
 		{
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event)
+	{
+		int temperature = (int) event.values[0];
+		Log.d(TAG, "Got sensor event: " + temperature);
+		test.setText(temperature);
 	}
 
 }
