@@ -4,14 +4,14 @@
     <item
         android:id="@+id/action_settings"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:orderInCategory="100"
+        android:orderInCategory="2"
         android:title="@string/action_settings"
         thermometer:showAsAction="never"/>
     <item
         android:id="@+id/action_history"
         android:icon="@android:drawable/ic_menu_recent_history"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         android:title="@string/action_history"
-        thermometer:showAsAction="ifRoom"/>
+        thermometer:showAsAction="never"/>
 
 </menu>

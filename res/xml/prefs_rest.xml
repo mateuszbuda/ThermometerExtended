@@ -8,7 +8,7 @@
         android:entryValues="@array/prefs_freq_vals"
         android:icon="@drawable/ic_menu_refresh"
         android:key="@string/prefs_freq_key"
-        android:title="@string/prefs_freq_title" />
+        android:title="@string/prefs_freq_title" android:order="92"/>
     <ListPreference
         android:defaultValue="Celsius"
         android:dialogTitle="@string/prefs_temp_unit_title"
@@ -16,7 +16,7 @@
         android:entryValues="@array/prefs_temp_unit_vals"
         android:icon="@android:drawable/ic_menu_compass"
         android:key="@string/prefs_temp_unit_key"
-        android:title="@string/prefs_temp_unit_title" />
+        android:title="@string/prefs_temp_unit_title" android:order="91"/>
 
     <CheckBoxPreference
         android:defaultValue="true"
@@ -24,15 +24,15 @@
         android:key="@string/prefs_save_data_key"
         android:summaryOff="@string/prefs_save_data_summary_off"
         android:summaryOn="@string/prefs_save_data_summary_on"
-        android:title="@string/prefs_save_data_title" />
+        android:title="@string/prefs_save_data_title" android:order="93"/>
 
     <ListPreference
-        android:defaultValue="Alice Blue"
+        android:defaultValue="#FFF0F8FF"
         android:dialogTitle="@string/prefs_background_color_title"
         android:entries="@array/prefs_background_color_keys"
         android:entryValues="@array/prefs_background_color_vals"
         android:icon="@drawable/ic_menu_star"
         android:key="@string/prefs_background_color_key"
-        android:title="@string/prefs_background_color_title" />
+        android:title="@string/prefs_background_color_title" android:order="94"/>
 
 </PreferenceScreen>

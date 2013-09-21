@@ -69,24 +69,25 @@
         <item>White</item>
     </string-array>
     <string-array name="prefs_background_color_vals">
-        <item>#F0F8FF</item>
-        <item>#7FFFD4</item>
-        <item>#FFF8DC</item>
-        <item>#8FBC8F</item>
-        <item>#ADFF2F</item>
-        <item>#DCDCDC</item>
-        <item>#FF69B4</item>
-        <item>#FFFACD</item>
-        <item>#D3D3D3</item>
-        <item>#00FF00</item>
-        <item>#FFDAB9</item>
-        <item>#DDA0DD</item>
-        <item>#F4A460</item>
-        <item>#FFFAFA</item>
-        <item>#FFFFFF</item>
+        <item>#FFF0F8FF</item>
+        <item>#887FFFD4</item>
+        <item>#FFFFF8DC</item>
+        <item>#888FBC8F</item>
+        <item>#88ADFF2F</item>
+        <item>#FFDCDCDC</item>
+        <item>#88FF69B4</item>
+        <item>#FFFFFACD</item>
+        <item>#88D3D3D3</item>
+        <item>#8800FF00</item>
+        <item>#88FFDAB9</item>
+        <item>#88DDA0DD</item>
+        <item>#88F4A460</item>
+        <item>#FFFFFAFA</item>
+        <item>#FFFFFFFF</item>
     </string-array>
 
     <string name="prefs_background_color_title">Background Color</string>
     <string name="prefs_background_color_key">background_color</string>
+    <string name="prefs_rest_title">Customize</string>
 
 </resources>

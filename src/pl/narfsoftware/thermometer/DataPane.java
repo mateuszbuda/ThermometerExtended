@@ -3,21 +3,27 @@ package pl.narfsoftware.thermometer;
 import java.lang.reflect.Field;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewConfiguration;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 
 public class DataPane extends ActionBarActivity
 {
+	static final String TAG = "DataPane";
+
 	static final String[] FROM = new String[]
 	{ "icon", "type", "data" };
 	static final int[] TO = new int[]
 	{ R.id.sensorIcon, R.id.sensorType, R.id.sensorData };
 
 	ListView sensorsDataList;
+	RelativeLayout dataPaneBackground;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -29,12 +35,27 @@ public class DataPane extends ActionBarActivity
 
 		sensorsDataList = (ListView) findViewById(R.layout.sensor_data_item);
 
-		//List<HashMap<String, Object>> data = null;
+		dataPaneBackground = (RelativeLayout) findViewById(R.id.dataPaneLayout);
 
-		//SimpleAdapter adapter = new SimpleAdapter(this, data,
-		//		R.layout.sensor_data_item, FROM, TO);
+		dataPaneBackground.setBackgroundColor(Color
+				.parseColor(PreferenceManager.getDefaultSharedPreferences(this)
+						.getString("background_color", "#00BFB9")));
 
-		//sensorsDataList.setAdapter(adapter);
+		// List<HashMap<String, Object>> data = null;
+
+		// SimpleAdapter adapter = new SimpleAdapter(this, data,
+		// R.layout.sensor_data_item, FROM, TO);
+
+		// sensorsDataList.setAdapter(adapter);
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		dataPaneBackground.setBackgroundColor(Color
+				.parseColor(PreferenceManager.getDefaultSharedPreferences(this)
+						.getString("background_color", "#00BFB9")));
 	}
 
 	@Override
