@@ -9,13 +9,20 @@
     <string name="prefs_header">Settings</string>
     <string name="prefs_sensors">Sensors</string>
     <string name="prefs_sensors_title">Choose sensors</string>
-    <string name="ambient_temp">Temprature</string>
-    <string name="relative_humidity">Relative Humidity</string>
-    <string name="absolute_humidity">Absolute Humidity</string>
-    <string name="pressure">Pressure</string>
-    <string name="dew_point">Dew Point</string>
-    <string name="light">Light</string>
-    <string name="magnetic_field">Magnetic Field</string>
+    <string name="ambient_temp_title">Temprature</string>
+    <string name="relative_humidity_title">Relative Humidity</string>
+    <string name="absolute_humidity_title">Absolute Humidity</string>
+    <string name="pressure_title">Pressure</string>
+    <string name="dew_point_title">Dew Point</string>
+    <string name="light_title">Light</string>
+    <string name="magnetic_field_title">Magnetic Field</string>
+    <string name="ambient_temp_key">ambient_temprature</string>
+    <string name="relative_humidity_key">relative_humidity</string>
+    <string name="absolute_humidity_key">absolute_humidity</string>
+    <string name="pressure_key">pressure</string>
+    <string name="dew_point_key">dew_point</string>
+    <string name="light_key">light</string>
+    <string name="magnetic_field_key">magnetic_field</string>
 
     <string-array name="prefs_freq_keys">
         <item>10 seconds</item>
