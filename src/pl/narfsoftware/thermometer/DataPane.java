@@ -18,7 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewConfiguration;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class DataPane extends ActionBarActivity implements SensorEventListener
@@ -27,9 +27,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	SharedPreferences preferences;
 
-	// ListView sensorsDataList;
-	RelativeLayout dataPaneBackground;
-	TextView test;
+	LinearLayout dataPaneBackground;
 
 	SensorManager sensorManager;
 	Sensor[] sensors = new Sensor[sensorsCount];
@@ -49,6 +47,18 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	boolean showLight;
 	boolean showMagneticField;
 
+	float temperature;
+	float relativeHumidity;
+	float absoluteHumidity;
+	float pressure;
+	float dewPoint;
+	float light;
+	float magneticField;
+
+	static final double A = 6.112;
+	static final double m = 17.62;
+	static final double Tn = 243.12;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -57,7 +67,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		getOverflowMenu();
 
-		dataPaneBackground = (RelativeLayout) findViewById(R.id.dataPaneLayout);
+		dataPaneBackground = (LinearLayout) findViewById(R.id.dataPaneLayout);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -66,10 +76,10 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		sensors[sTemprature] = sensorManager
 				.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-		sensors[sPressure] = sensorManager
-				.getDefaultSensor(Sensor.TYPE_PRESSURE);
 		sensors[sRelativeHumidity] = sensorManager
 				.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+		sensors[sPressure] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_PRESSURE);
 		sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 		sensors[sMagneticField] = sensorManager
 				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -219,27 +229,86 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		test = (TextView) findViewById(R.id.textViewTest);
-
-		if (event.sensor.equals(sensors[sTemprature]))
+		if (showTemprature && event.sensor.equals(sensors[sTemprature]))
 		{
-			float temperature = event.values[0];
-			Log.d(TAG, "Got sensor event: " + temperature);
-			test.setText(temperature + "C");
+			temperature = event.values[0];
+			((TextView) findViewById(R.id.textViewTemperature))
+					.setText("Temperature: " + String.valueOf(temperature)
+							+ " C");
+			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
-		if (event.sensor.equals(sensors[sMagneticField]))
+		if (showRelativeHumidity
+				&& event.sensor.equals(sensors[sRelativeHumidity]))
+		{
+			relativeHumidity = event.values[0];
+			((TextView) findViewById(R.id.textViewRelativeHumidity))
+					.setText("Relative humidity: "
+							+ String.valueOf(relativeHumidity) + " %");
+			Log.d(TAG, "Got relative humidity sensor event: "
+					+ relativeHumidity);
+		}
+
+		if (showAbsoluteHumidity
+				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
+						.equals(sensors[sRelativeHumidity])))
+		{
+			updateAbsoluteHumidity();
+		}
+
+		if (showPressure && event.sensor.equals(sensors[sPressure]))
+		{
+			pressure = event.values[0];
+			((TextView) findViewById(R.id.textViewPressure))
+					.setText("Pressure: " + String.valueOf(pressure) + " hPa");
+			Log.d(TAG, "Got pressure sensor event: " + pressure);
+		}
+
+		if (showDewPoint
+				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
+						.equals(sensors[sRelativeHumidity])))
+		{
+			updateDewPoint();
+		}
+
+		if (showLight && event.sensor.equals(sensors[sLight]))
+		{
+			light = event.values[0];
+			((TextView) findViewById(R.id.textViewLight)).setText("Light: "
+					+ String.valueOf(light) + " lx");
+			Log.d(TAG, "Got light sensor event: " + light);
+		}
+
+		if (showMagneticField && event.sensor.equals(sensors[sMagneticField]))
 		{
 			float magneticFieldX = event.values[0];
-			float magneticFialdY = event.values[1];
+			float magneticFieldY = event.values[1];
 			float magneticFieldZ = event.values[2];
-			float magnetciField = magneticFieldX + magneticFialdY
-					+ magneticFieldZ;
-
-			test.setText("X = " + magneticFieldX + "uT\nY = " + magneticFialdY
-					+ "uT\nZ = " + magneticFieldZ + "uT\n" + "Sum = "
-					+ magnetciField + "uT\nAccuracy = " + event.accuracy);
+			magneticField = magneticFieldX + magneticFieldY + magneticFieldZ;
+			((TextView) findViewById(R.id.textViewMagneticField))
+					.setText("Magnetic field: " + String.valueOf(magneticField)
+							+ " uT");
+			Log.d(TAG, "Got magnetic field sensor event: " + magneticField);
 		}
+	}
 
+	private void updateAbsoluteHumidity()
+	{
+		absoluteHumidity = (float) (216.7 * (relativeHumidity / 100.0 * A
+				* Math.exp(m * temperature / (Tn + temperature)) / (273.15 + temperature)));
+		((TextView) findViewById(R.id.textViewAbsoluteHumidity))
+				.setText("Absolute humidity: "
+						+ String.valueOf(absoluteHumidity) + " g/m3");
+		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
+	}
+
+	private void updateDewPoint()
+	{
+		double h = Math.log(relativeHumidity / 100.0) + (m * temperature)
+				/ (Tn + temperature);
+		dewPoint = (float) (Tn * h / (m - h));
+		((TextView) findViewById(R.id.textViewDewPoint)).setText("Dew point: "
+				+ String.valueOf(dewPoint) + " C");
+		Log.d(TAG, "Dew point updated: " + dewPoint);
 	}
 }
