@@ -41,14 +41,14 @@
     <string name="prefs_freq_key">update_frequency</string>
 
     <string-array name="prefs_temp_unit_keys">
-        <item>Celsius</item>
-        <item>Fahrenheit</item>
+        <item>Degrees Celsius</item>
+        <item>Degrees Fahrenheit</item>
         <item>Kelvin</item>
     </string-array>
     <string-array name="prefs_temp_unit_vals">
-        <item>Celsius</item>
-        <item>Fahrenheit</item>
-        <item>Kelvin</item>
+        <item>celsius</item>
+        <item>fahrenheit</item>
+        <item>kelvin</item>
     </string-array>
 
     <string name="prefs_temp_unit_title">Temperature Unit</string>

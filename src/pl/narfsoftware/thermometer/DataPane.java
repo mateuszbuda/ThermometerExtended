@@ -31,6 +31,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	static final String TAG = "DataPane";
 
 	SharedPreferences preferences;
+	Resources resources;
 
 	LinearLayout dataPaneBaseLayout;
 	ScrollView backgroundLayout;
@@ -74,6 +75,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	LinearLayout sensorDataRowText;
 	TextView sensorHeader;
 
+	String temperatureUnit;
+	static final int CELSIUS = 0;
+	static final int FAHRENHEIT = 1;
+	static final int KELVIN = 2;
+
 	static final double A = 6.112;
 	static final double m = 17.62;
 	static final double Tn = 243.12;
@@ -83,6 +89,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data_pane);
+
+		// get resources
+		resources = getResources();
 
 		getOverflowMenu();
 
@@ -150,15 +159,15 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		// get current preferences
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-		// get resources
-		Resources resources = getResources();
-
 		// set background color
 		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
 				.getString(resources
 						.getString(R.string.prefs_background_color_key),
 						"#FFF0F8FF")));
+		// set temperature unit
+		temperatureUnit = preferences.getString(
+				resources.getString(R.string.prefs_temp_unit_key),
+				resources.getStringArray(R.array.prefs_temp_unit_vals)[0]);
 
 		// get from preferences which sensors to show
 		showTemprature = preferences.getBoolean(
@@ -296,9 +305,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		super.onPause();
 
-		// get current preferences
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
 		// get resources
 		Resources resources = getResources();
 
@@ -370,9 +376,18 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (true || showTemprature && event.sensor.equals(sensors[sTemprature]))
 		{
 			temperature = event.values[0];
-			// ((TextView) findViewById(R.id.textViewTemperature))
-			tvTemprature.setText(String.format("%.0f", temperature) + " "
-					+ (char) 0x00B0 + "C");
+			if (temperatureUnit.equals(resources
+					.getStringArray(R.array.prefs_temp_unit_vals)[CELSIUS]))
+				tvTemprature.setText(String.format("%.0f", temperature) + " "
+						+ (char) 0x00B0 + "C");
+			else if (temperatureUnit.equals(resources
+					.getStringArray(R.array.prefs_temp_unit_vals)[FAHRENHEIT]))
+				tvTemprature.setText(String.format("%.0f",
+						temperature * 9 / 5 + 32) + " " + (char) 0x00B0 + "F");
+			else
+				tvTemprature.setText(String.format("%.0f", temperature + 273)
+						+ " K");
+
 			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
@@ -380,7 +395,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				&& event.sensor.equals(sensors[sRelativeHumidity]))
 		{
 			relativeHumidity = event.values[0];
-			// ((TextView) findViewById(R.id.textViewRelativeHumidity))
 			tvRelativeHumidity.setText(String.format("%.0f", relativeHumidity)
 					+ " %");
 			Log.d(TAG, "Got relative humidity sensor event: "
@@ -398,7 +412,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (true || showPressure && event.sensor.equals(sensors[sPressure]))
 		{
 			pressure = event.values[0];
-			// ((TextView) findViewById(R.id.textViewPressure))
 			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
 			Log.d(TAG, "Got pressure sensor event: " + pressure);
 		}
@@ -414,7 +427,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (true || showLight && event.sensor.equals(sensors[sLight]))
 		{
 			light = event.values[0];
-			// ((TextView) findViewById(R.id.textViewLight))
 			tvLight.setText(String.format("%.0f", light) + " lx");
 			Log.d(TAG, "Got light sensor event: " + light);
 		}
@@ -425,7 +437,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			float magneticFieldY = event.values[1];
 			float magneticFieldZ = event.values[2];
 			magneticField = magneticFieldX + magneticFieldY + magneticFieldZ;
-			// ((TextView) findViewById(R.id.textViewMagneticField))
 			tvMagneticField.setText(String.format("%.0f", magneticField) + " "
 					+ (char) 0x03BC + "T");
 			Log.d(TAG, "Got magnetic field sensor event: " + magneticField);
@@ -436,7 +447,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		absoluteHumidity = (float) (216.7 * (relativeHumidity / 100.0 * A
 				* Math.exp(m * temperature / (Tn + temperature)) / (273.15 + temperature)));
-		// ((TextView) findViewById(R.id.textViewAbsoluteHumidity))
 		tvAbsoluteHumidity.setText(Html.fromHtml(String.format("%.0f",
 				absoluteHumidity) + " g/m<sup><small>3</small></sup>"));
 		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
@@ -447,9 +457,16 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		double h = Math.log(relativeHumidity / 100.0) + (m * temperature)
 				/ (Tn + temperature);
 		dewPoint = (float) (Tn * h / (m - h));
-		// ((TextView) findViewById(R.id.textViewDewPoint))
-		tvDewPoint.setText(String.format("%.0f", dewPoint) + " "
-				+ (char) 0x00B0 + "C");
+		if (temperatureUnit.equals(resources
+				.getStringArray(R.array.prefs_temp_unit_vals)[CELSIUS]))
+			tvDewPoint.setText(String.format("%.0f", dewPoint) + " "
+					+ (char) 0x00B0 + "C");
+		else if (temperatureUnit.equals(resources
+				.getStringArray(R.array.prefs_temp_unit_vals)[FAHRENHEIT]))
+			tvDewPoint.setText(String.format("%.0f", dewPoint * 9 / 5 + 32)
+					+ " " + (char) 0x00B0 + "F");
+		else
+			tvDewPoint.setText(String.format("%.0f", dewPoint + 273) + "K");
 		Log.d(TAG, "Dew point updated: " + dewPoint);
 	}
 }
