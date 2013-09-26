@@ -14,11 +14,16 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewConfiguration;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class DataPane extends ActionBarActivity implements SensorEventListener
@@ -27,7 +32,8 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	SharedPreferences preferences;
 
-	LinearLayout dataPaneBackground;
+	LinearLayout dataPaneBaseLayout;
+	ScrollView backgroundLayout;
 
 	SensorManager sensorManager;
 	Sensor[] sensors = new Sensor[sensorsCount];
@@ -55,6 +61,19 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	float light;
 	float magneticField;
 
+	TextView tvTemprature;
+	TextView tvRelativeHumidity;
+	TextView tvAbsoluteHumidity;
+	TextView tvPressure;
+	TextView tvDewPoint;
+	TextView tvLight;
+	TextView tvMagneticField;
+
+	LinearLayout sensorDataRow;
+	ImageView sensorIcon;
+	LinearLayout sensorDataRowText;
+	TextView sensorHeader;
+
 	static final double A = 6.112;
 	static final double m = 17.62;
 	static final double Tn = 243.12;
@@ -67,13 +86,15 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		getOverflowMenu();
 
-		dataPaneBackground = (LinearLayout) findViewById(R.id.dataPaneLayout);
+		dataPaneBaseLayout = (LinearLayout) findViewById(R.id.dataPaneLayout);
+		backgroundLayout = (ScrollView) findViewById(R.id.backgroundLayout);
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 		List<Sensor> deviceSensors = sensorManager
 				.getSensorList(Sensor.TYPE_ALL);
 
+		// get sensors
 		sensors[sTemprature] = sensorManager
 				.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 		sensors[sRelativeHumidity] = sensorManager
@@ -83,6 +104,41 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 		sensors[sMagneticField] = sensorManager
 				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+		// initialize TextViews
+		tvTemprature = new TextView(this);
+		tvTemprature.setGravity(Gravity.CENTER);
+		tvTemprature.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
+		tvRelativeHumidity = new TextView(this);
+		tvRelativeHumidity.setGravity(Gravity.CENTER);
+		tvRelativeHumidity.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
+		tvAbsoluteHumidity = new TextView(this);
+		tvAbsoluteHumidity.setGravity(Gravity.CENTER);
+		tvAbsoluteHumidity.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
+		tvPressure = new TextView(this);
+		tvPressure.setGravity(Gravity.CENTER);
+		tvPressure
+				.setTextAppearance(this, android.R.style.TextAppearance_Large);
+
+		tvDewPoint = new TextView(this);
+		tvDewPoint.setGravity(Gravity.CENTER);
+		tvDewPoint
+				.setTextAppearance(this, android.R.style.TextAppearance_Large);
+
+		tvLight = new TextView(this);
+		tvLight.setGravity(Gravity.CENTER);
+		tvLight.setTextAppearance(this, android.R.style.TextAppearance_Large);
+
+		tvMagneticField = new TextView(this);
+		tvMagneticField.setGravity(Gravity.CENTER);
+		tvMagneticField.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
 
 		Log.d(TAG, "onCreated");
 	}
@@ -99,7 +155,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		Resources resources = getResources();
 
 		// set background color
-		dataPaneBackground.setBackgroundColor(Color.parseColor(preferences
+		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
 				.getString(resources
 						.getString(R.string.prefs_background_color_key),
 						"#FFF0F8FF")));
@@ -124,33 +180,115 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (showTemprature || showAbsoluteHumidity || showDewPoint)
 		{
 			sensorManager.registerListener(this, sensors[sTemprature],
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Temperature sensor registered");
 		}
 		if (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)
 		{
 			sensorManager.registerListener(this, sensors[sRelativeHumidity],
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Relative humidity sensor registered");
 		}
 		if (showPressure)
 		{
 			sensorManager.registerListener(this, sensors[sPressure],
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Pressure sensor registered");
 		}
 		if (showLight)
 		{
 			sensorManager.registerListener(this, sensors[sLight],
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Light sensor registered");
 		}
 		if (showMagneticField)
 		{
 			sensorManager.registerListener(this, sensors[sMagneticField],
-					SensorManager.SENSOR_DELAY_NORMAL);
+					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Magnetic field sensor registered");
 		}
+
+		// clear base layout
+		dataPaneBaseLayout.removeAllViews();
+
+		// remove TextViews parents
+		if (tvTemprature.getParent() != null)
+			((LinearLayout) tvTemprature.getParent()).removeView(tvTemprature);
+		if (tvRelativeHumidity.getParent() != null)
+			((LinearLayout) tvRelativeHumidity.getParent())
+					.removeView(tvRelativeHumidity);
+		if (tvAbsoluteHumidity.getParent() != null)
+			((LinearLayout) tvAbsoluteHumidity.getParent())
+					.removeView(tvAbsoluteHumidity);
+		if (tvPressure.getParent() != null)
+			((LinearLayout) tvPressure.getParent()).removeView(tvPressure);
+		if (tvDewPoint.getParent() != null)
+			((LinearLayout) tvDewPoint.getParent()).removeView(tvDewPoint);
+		if (tvLight.getParent() != null)
+			((LinearLayout) tvLight.getParent()).removeView(tvLight);
+		if (tvMagneticField.getParent() != null)
+			((LinearLayout) tvMagneticField.getParent())
+					.removeView(tvMagneticField);
+
+		// add chosen children to base layout
+		if (showTemprature)
+			addSensorDataRow(R.drawable.temprature,
+					R.string.ambient_temp_title, tvTemprature);
+
+		if (showRelativeHumidity)
+			addSensorDataRow(R.drawable.relative_humidity,
+					R.string.relative_humidity_title, tvRelativeHumidity);
+
+		if (showAbsoluteHumidity)
+			addSensorDataRow(R.drawable.absolute_humidity,
+					R.string.absolute_humidity_title, tvAbsoluteHumidity);
+
+		if (showPressure)
+			addSensorDataRow(R.drawable.pressure, R.string.pressure_title,
+					tvPressure);
+
+		if (showDewPoint)
+			addSensorDataRow(R.drawable.dew_point, R.string.dew_point_title,
+					tvDewPoint);
+
+		if (showLight)
+			addSensorDataRow(R.drawable.light, R.string.light_title, tvLight);
+
+		if (showMagneticField)
+			addSensorDataRow(R.drawable.magnetic_field,
+					R.string.magnetic_field_title, tvMagneticField);
+	}
+
+	private void addSensorDataRow(int iconResId, int titleResId,
+			TextView tvSensor)
+	{
+		sensorDataRow = new LinearLayout(this);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		sensorDataRow.setLayoutParams(params);
+		sensorDataRow.setOrientation(LinearLayout.HORIZONTAL);
+		sensorDataRow.setPadding(0, 0, 0, 12);
+		sensorDataRow.setGravity(Gravity.CENTER);
+
+		sensorIcon = new ImageView(this);
+		sensorIcon.setImageResource(iconResId);
+
+		sensorDataRowText = new LinearLayout(this);
+		sensorDataRowText.setOrientation(LinearLayout.VERTICAL);
+		sensorDataRowText.setLayoutParams(params);
+
+		sensorHeader = new TextView(this);
+		sensorHeader.setText(titleResId);
+		sensorHeader.setGravity(Gravity.CENTER);
+		sensorHeader.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
+		sensorDataRow.addView(sensorIcon);
+		sensorDataRowText.addView(sensorHeader);
+		sensorDataRowText.addView(tvSensor);
+		sensorDataRow.addView(sensorDataRowText);
+
+		dataPaneBaseLayout.addView(sensorDataRow);
 	}
 
 	@Override
@@ -229,53 +367,55 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		if (showTemprature && event.sensor.equals(sensors[sTemprature]))
+		if (true || showTemprature && event.sensor.equals(sensors[sTemprature]))
 		{
 			temperature = event.values[0];
-			((TextView) findViewById(R.id.textViewTemperature))
-					.setText("Temperature: " + String.valueOf(temperature)
-							+ " C");
+			// ((TextView) findViewById(R.id.textViewTemperature))
+			tvTemprature.setText(String.format("%.0f", temperature) + " "
+					+ (char) 0x00B0 + "C");
 			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
-		if (showRelativeHumidity
+		if (true || showRelativeHumidity
 				&& event.sensor.equals(sensors[sRelativeHumidity]))
 		{
 			relativeHumidity = event.values[0];
-			((TextView) findViewById(R.id.textViewRelativeHumidity))
-					.setText("Relative humidity: "
-							+ String.valueOf(relativeHumidity) + " %");
+			// ((TextView) findViewById(R.id.textViewRelativeHumidity))
+			tvRelativeHumidity.setText(String.format("%.0f", relativeHumidity)
+					+ " %");
 			Log.d(TAG, "Got relative humidity sensor event: "
 					+ relativeHumidity);
 		}
 
-		if (showAbsoluteHumidity
+		if (true
+				|| showAbsoluteHumidity
 				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
 						.equals(sensors[sRelativeHumidity])))
 		{
 			updateAbsoluteHumidity();
 		}
 
-		if (showPressure && event.sensor.equals(sensors[sPressure]))
+		if (true || showPressure && event.sensor.equals(sensors[sPressure]))
 		{
 			pressure = event.values[0];
-			((TextView) findViewById(R.id.textViewPressure))
-					.setText("Pressure: " + String.valueOf(pressure) + " hPa");
+			// ((TextView) findViewById(R.id.textViewPressure))
+			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
 			Log.d(TAG, "Got pressure sensor event: " + pressure);
 		}
 
-		if (showDewPoint
+		if (true
+				|| showDewPoint
 				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
 						.equals(sensors[sRelativeHumidity])))
 		{
 			updateDewPoint();
 		}
 
-		if (showLight && event.sensor.equals(sensors[sLight]))
+		if (true || showLight && event.sensor.equals(sensors[sLight]))
 		{
 			light = event.values[0];
-			((TextView) findViewById(R.id.textViewLight)).setText("Light: "
-					+ String.valueOf(light) + " lx");
+			// ((TextView) findViewById(R.id.textViewLight))
+			tvLight.setText(String.format("%.0f", light) + " lx");
 			Log.d(TAG, "Got light sensor event: " + light);
 		}
 
@@ -285,9 +425,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			float magneticFieldY = event.values[1];
 			float magneticFieldZ = event.values[2];
 			magneticField = magneticFieldX + magneticFieldY + magneticFieldZ;
-			((TextView) findViewById(R.id.textViewMagneticField))
-					.setText("Magnetic field: " + String.valueOf(magneticField)
-							+ " uT");
+			// ((TextView) findViewById(R.id.textViewMagneticField))
+			tvMagneticField.setText(String.format("%.0f", magneticField) + " "
+					+ (char) 0x03BC + "T");
 			Log.d(TAG, "Got magnetic field sensor event: " + magneticField);
 		}
 	}
@@ -296,9 +436,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		absoluteHumidity = (float) (216.7 * (relativeHumidity / 100.0 * A
 				* Math.exp(m * temperature / (Tn + temperature)) / (273.15 + temperature)));
-		((TextView) findViewById(R.id.textViewAbsoluteHumidity))
-				.setText("Absolute humidity: "
-						+ String.valueOf(absoluteHumidity) + " g/m3");
+		// ((TextView) findViewById(R.id.textViewAbsoluteHumidity))
+		tvAbsoluteHumidity.setText(Html.fromHtml(String.format("%.0f",
+				absoluteHumidity) + " g/m<sup><small>3</small></sup>"));
 		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
 	}
 
@@ -307,8 +447,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		double h = Math.log(relativeHumidity / 100.0) + (m * temperature)
 				/ (Tn + temperature);
 		dewPoint = (float) (Tn * h / (m - h));
-		((TextView) findViewById(R.id.textViewDewPoint)).setText("Dew point: "
-				+ String.valueOf(dewPoint) + " C");
+		// ((TextView) findViewById(R.id.textViewDewPoint))
+		tvDewPoint.setText(String.format("%.0f", dewPoint) + " "
+				+ (char) 0x00B0 + "C");
 		Log.d(TAG, "Dew point updated: " + dewPoint);
 	}
 }

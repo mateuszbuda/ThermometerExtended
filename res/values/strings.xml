@@ -9,7 +9,7 @@
     <string name="prefs_header">Settings</string>
     <string name="prefs_sensors">Sensors</string>
     <string name="prefs_sensors_title">Choose sensors</string>
-    <string name="ambient_temp_title">Temprature</string>
+    <string name="ambient_temp_title">Temperature</string>
     <string name="relative_humidity_title">Relative Humidity</string>
     <string name="absolute_humidity_title">Absolute Humidity</string>
     <string name="pressure_title">Pressure</string>
