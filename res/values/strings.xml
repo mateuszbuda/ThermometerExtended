@@ -96,5 +96,6 @@
     <string name="prefs_background_color_title">Background Color</string>
     <string name="prefs_background_color_key">background_color</string>
     <string name="prefs_rest_title">Customize</string>
+    <string name="sensor_unavailable">Sensor unavailable</string>
 
 </resources>

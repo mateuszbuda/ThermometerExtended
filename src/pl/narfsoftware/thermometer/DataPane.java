@@ -11,6 +11,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -45,6 +46,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	static final int sLight = 3;
 	static final int sMagneticField = 4;
 	static final int sensorsCount = 5;
+
+	boolean hasTempratureSensor = false;
+	boolean hasRelativeHumiditySensor = false;
+	boolean hasPressureSensor = false;
+	boolean hasLightSensor = false;
+	boolean hasMagneticFieldSensor = false;
 
 	boolean showTemprature;
 	boolean showRelativeHumidity;
@@ -100,54 +107,110 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+		// checking sensors availability
 		List<Sensor> deviceSensors = sensorManager
 				.getSensorList(Sensor.TYPE_ALL);
 
+		for (Sensor sensor : deviceSensors)
+		{
+			if (sensor.getType() == Sensor.TYPE_TEMPERATURE)
+				hasTempratureSensor = true;
+
+			else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
+					&& sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY)
+				hasRelativeHumiditySensor = true;
+
+			else if (sensor.getType() == Sensor.TYPE_PRESSURE)
+				hasPressureSensor = true;
+
+			else if (sensor.getType() == Sensor.TYPE_LIGHT)
+				hasLightSensor = true;
+
+			else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+				hasMagneticFieldSensor = true;
+		}
+
 		// get sensors
-		sensors[sTemprature] = sensorManager
-				.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-		sensors[sRelativeHumidity] = sensorManager
-				.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-		sensors[sPressure] = sensorManager
-				.getDefaultSensor(Sensor.TYPE_PRESSURE);
-		sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-		sensors[sMagneticField] = sensorManager
-				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		if (hasTempratureSensor)
+		{
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+				sensors[sTemprature] = sensorManager
+						.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+			else
+				sensors[sTemprature] = sensorManager
+						.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
+		}
+
+		if (hasRelativeHumiditySensor
+				&& android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			sensors[sRelativeHumidity] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+
+		if (hasPressureSensor)
+			sensors[sPressure] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_PRESSURE);
+
+		if (hasLightSensor)
+			sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+		if (hasMagneticFieldSensor)
+			sensors[sMagneticField] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
 		// initialize TextViews
 		tvTemprature = new TextView(this);
 		tvTemprature.setGravity(Gravity.CENTER);
 		tvTemprature.setTextAppearance(this,
 				android.R.style.TextAppearance_Large);
+		if (!hasTempratureSensor)
+			tvTemprature.setText(resources
+					.getString(R.string.sensor_unavailable));
 
 		tvRelativeHumidity = new TextView(this);
 		tvRelativeHumidity.setGravity(Gravity.CENTER);
 		tvRelativeHumidity.setTextAppearance(this,
 				android.R.style.TextAppearance_Large);
+		if (!hasRelativeHumiditySensor)
+			tvRelativeHumidity.setText(resources
+					.getString(R.string.sensor_unavailable));
 
 		tvAbsoluteHumidity = new TextView(this);
 		tvAbsoluteHumidity.setGravity(Gravity.CENTER);
 		tvAbsoluteHumidity.setTextAppearance(this,
 				android.R.style.TextAppearance_Large);
+		if (!hasTempratureSensor || !hasRelativeHumiditySensor)
+			tvAbsoluteHumidity.setText(resources
+					.getString(R.string.sensor_unavailable));
 
 		tvPressure = new TextView(this);
 		tvPressure.setGravity(Gravity.CENTER);
 		tvPressure
 				.setTextAppearance(this, android.R.style.TextAppearance_Large);
+		if (!hasPressureSensor)
+			tvPressure
+					.setText(resources.getString(R.string.sensor_unavailable));
 
 		tvDewPoint = new TextView(this);
 		tvDewPoint.setGravity(Gravity.CENTER);
 		tvDewPoint
 				.setTextAppearance(this, android.R.style.TextAppearance_Large);
+		if (!hasTempratureSensor || !hasRelativeHumiditySensor)
+			tvDewPoint
+					.setText(resources.getString(R.string.sensor_unavailable));
 
 		tvLight = new TextView(this);
 		tvLight.setGravity(Gravity.CENTER);
 		tvLight.setTextAppearance(this, android.R.style.TextAppearance_Large);
+		if (!hasLightSensor)
+			tvLight.setText(resources.getString(R.string.sensor_unavailable));
 
 		tvMagneticField = new TextView(this);
 		tvMagneticField.setGravity(Gravity.CENTER);
 		tvMagneticField.setTextAppearance(this,
 				android.R.style.TextAppearance_Large);
+		if (!hasMagneticFieldSensor)
+			tvMagneticField.setText(resources
+					.getString(R.string.sensor_unavailable));
 
 		Log.d(TAG, "onCreated");
 	}
@@ -186,31 +249,33 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				resources.getString(R.string.magnetic_field_key), false);
 
 		// register chosen sensors
-		if (showTemprature || showAbsoluteHumidity || showDewPoint)
+		if (hasTempratureSensor
+				&& (showTemprature || showAbsoluteHumidity || showDewPoint))
 		{
 			sensorManager.registerListener(this, sensors[sTemprature],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Temperature sensor registered");
 		}
-		if (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)
+		if (hasRelativeHumiditySensor
+				&& (showRelativeHumidity || showAbsoluteHumidity || showDewPoint))
 		{
 			sensorManager.registerListener(this, sensors[sRelativeHumidity],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Relative humidity sensor registered");
 		}
-		if (showPressure)
+		if (hasPressureSensor && showPressure)
 		{
 			sensorManager.registerListener(this, sensors[sPressure],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Pressure sensor registered");
 		}
-		if (showLight)
+		if (hasLightSensor && showLight)
 		{
 			sensorManager.registerListener(this, sensors[sLight],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Light sensor registered");
 		}
-		if (showMagneticField)
+		if (hasMagneticFieldSensor && showMagneticField)
 		{
 			sensorManager.registerListener(this, sensors[sMagneticField],
 					SensorManager.SENSOR_DELAY_UI);
@@ -373,7 +438,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		if (true || showTemprature && event.sensor.equals(sensors[sTemprature]))
+		if (showTemprature && event.sensor.equals(sensors[sTemprature]))
 		{
 			temperature = event.values[0];
 			if (temperatureUnit.equals(resources
@@ -391,7 +456,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
-		if (true || showRelativeHumidity
+		if (showRelativeHumidity
 				&& event.sensor.equals(sensors[sRelativeHumidity]))
 		{
 			relativeHumidity = event.values[0];
@@ -401,30 +466,28 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					+ relativeHumidity);
 		}
 
-		if (true
-				|| showAbsoluteHumidity
+		if (showAbsoluteHumidity
 				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
 						.equals(sensors[sRelativeHumidity])))
 		{
 			updateAbsoluteHumidity();
 		}
 
-		if (true || showPressure && event.sensor.equals(sensors[sPressure]))
+		if (showPressure && event.sensor.equals(sensors[sPressure]))
 		{
 			pressure = event.values[0];
 			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
 			Log.d(TAG, "Got pressure sensor event: " + pressure);
 		}
 
-		if (true
-				|| showDewPoint
+		if (showDewPoint
 				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
 						.equals(sensors[sRelativeHumidity])))
 		{
 			updateDewPoint();
 		}
 
-		if (true || showLight && event.sensor.equals(sensors[sLight]))
+		if (showLight && event.sensor.equals(sensors[sLight]))
 		{
 			light = event.values[0];
 			tvLight.setText(String.format("%.0f", light) + " lx");
