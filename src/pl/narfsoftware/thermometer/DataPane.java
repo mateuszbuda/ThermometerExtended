@@ -20,11 +20,13 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 public class DataPane extends ActionBarActivity implements SensorEventListener
@@ -81,6 +83,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	ImageView sensorIcon;
 	LinearLayout sensorDataRowText;
 	TextView sensorHeader;
+	View dividingLine;
 
 	String temperatureUnit;
 	static final int CELSIUS = 0;
@@ -88,8 +91,20 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	static final int KELVIN = 2;
 
 	static final double A = 6.112;
-	static final double m = 17.62;
-	static final double Tn = 243.12;
+	static final double M = 17.62;
+	static final double TN = 243.12;
+	static final double ZERO_ABSOLUTE = 273.15;
+	static final double HUNDRED_PERCENT = 100.0;
+	static final double FAHRENHEIT_FACTOR = 5 / 9;
+	static final double FAHRENHEIT_CONSTANT = 32;
+	static final double ABSOLUTE_HUMIDITY_CONSTANT = 216.7;
+
+	static final int dataRowPaddingLeft = 0;
+	static final int dataRowPaddingTop = 8;
+	static final int dataRowPaddingRight = 0;
+	static final int dataRowPaddingBottom = 10;
+	static final int dividingLineHeight = 1;
+	static final String dividingLineColor = "#44232323";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -341,7 +356,8 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		sensorDataRow.setLayoutParams(params);
 		sensorDataRow.setOrientation(LinearLayout.HORIZONTAL);
-		sensorDataRow.setPadding(0, 0, 0, 12);
+		sensorDataRow.setPadding(dataRowPaddingLeft, dataRowPaddingTop,
+				dataRowPaddingRight, dataRowPaddingBottom);
 		sensorDataRow.setGravity(Gravity.CENTER);
 
 		sensorIcon = new ImageView(this);
@@ -363,6 +379,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		sensorDataRow.addView(sensorDataRowText);
 
 		dataPaneBaseLayout.addView(sensorDataRow);
+
+		// dividing line
+		dividingLine = new View(this);
+		dividingLine.setLayoutParams(new TableRow.LayoutParams(
+				TableRow.LayoutParams.FILL_PARENT, dividingLineHeight));
+		dividingLine.setBackgroundColor(Color.parseColor("#44232323"));
+
+		dataPaneBaseLayout.addView(dividingLine);
 	}
 
 	@Override
@@ -508,8 +532,10 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private void updateAbsoluteHumidity()
 	{
-		absoluteHumidity = (float) (216.7 * (relativeHumidity / 100.0 * A
-				* Math.exp(m * temperature / (Tn + temperature)) / (273.15 + temperature)));
+		absoluteHumidity = (float) (ABSOLUTE_HUMIDITY_CONSTANT * (relativeHumidity
+				/ HUNDRED_PERCENT
+				* A
+				* Math.exp(M * temperature / (TN + temperature)) / (ZERO_ABSOLUTE + temperature)));
 		tvAbsoluteHumidity.setText(Html.fromHtml(String.format("%.0f",
 				absoluteHumidity) + " g/m<sup><small>3</small></sup>"));
 		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
@@ -517,19 +543,21 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private void updateDewPoint()
 	{
-		double h = Math.log(relativeHumidity / 100.0) + (m * temperature)
-				/ (Tn + temperature);
-		dewPoint = (float) (Tn * h / (m - h));
+		double h = Math.log(relativeHumidity / HUNDRED_PERCENT)
+				+ (M * temperature) / (TN + temperature);
+		dewPoint = (float) (TN * h / (M - h));
 		if (temperatureUnit.equals(resources
 				.getStringArray(R.array.prefs_temp_unit_vals)[CELSIUS]))
 			tvDewPoint.setText(String.format("%.0f", dewPoint) + " "
 					+ (char) 0x00B0 + "C");
 		else if (temperatureUnit.equals(resources
 				.getStringArray(R.array.prefs_temp_unit_vals)[FAHRENHEIT]))
-			tvDewPoint.setText(String.format("%.0f", dewPoint * 9 / 5 + 32)
+			tvDewPoint.setText(String.format("%.0f", dewPoint
+					* FAHRENHEIT_FACTOR + FAHRENHEIT_CONSTANT)
 					+ " " + (char) 0x00B0 + "F");
 		else
-			tvDewPoint.setText(String.format("%.0f", dewPoint + 273) + "K");
+			tvDewPoint.setText(String.format("%.0f", dewPoint + ZERO_ABSOLUTE)
+					+ " K");
 		Log.d(TAG, "Dew point updated: " + dewPoint);
 	}
 }
