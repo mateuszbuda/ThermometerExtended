@@ -1,9 +1,15 @@
 package pl.narfsoftware.thermometer;
 
 import java.lang.reflect.Field;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -16,6 +22,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -40,14 +47,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	ScrollView backgroundLayout;
 
 	SensorManager sensorManager;
-	Sensor[] sensors = new Sensor[sensorsCount];
+	Sensor[] sensors = new Sensor[SENSORS_COUNT];
 
-	static final int sTemprature = 0;
-	static final int sRelativeHumidity = 1;
-	static final int sPressure = 2;
-	static final int sLight = 3;
-	static final int sMagneticField = 4;
-	static final int sensorsCount = 5;
+	static final int S_TEMPRATURE = 0;
+	static final int S_RELATIVE_HUMIDITY = 1;
+	static final int S_PRESSURE = 2;
+	static final int S_LIGHT = 3;
+	static final int S_MAGNETIC_FIELD = 4;
+	static final int SENSORS_COUNT = 5;
 
 	boolean hasTempratureSensor = false;
 	boolean hasRelativeHumiditySensor = false;
@@ -84,6 +91,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	LinearLayout sensorDataRowText;
 	TextView sensorHeader;
 	View dividingLine;
+	LinearLayout dateAndTimeRow;
+
+	TextView time;
+	TextView date;
+	static final String TIME_FORMAT = "hh:mm a";
+	static final String DATE_FORMAT = "EEEE, dd MMMM";
 
 	String temperatureUnit;
 	static final int CELSIUS = 0;
@@ -99,12 +112,18 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	static final double FAHRENHEIT_CONSTANT = 32;
 	static final double ABSOLUTE_HUMIDITY_CONSTANT = 216.7;
 
-	static final int dataRowPaddingLeft = 0;
-	static final int dataRowPaddingTop = 8;
-	static final int dataRowPaddingRight = 0;
-	static final int dataRowPaddingBottom = 10;
-	static final int dividingLineHeight = 1;
-	static final String dividingLineColor = "#44232323";
+	static final int DATA_ROW_PADDING_LEFT = 0;
+	static final int DATA_ROW_PADDING_TOP = 8;
+	static final int DATA_ROW_PADDING_RIGHT = 0;
+	static final int DATA_ROW_PADDING_BOTTOM = 10;
+	static final int DATE_TIME_ROW_PADDING_LEFT = 0;
+	static final int DATE_TIME_ROW_PADDING_TOP = 0;
+	static final int DATE_TIME_ROW_PADDING_RIGHT = 0;
+	static final int DATE_TIME_ROW_PADDING_BOTTOM = 8;
+	static final int DIV_LINE_HEIGHT = 1;
+	static final String DIV_LINE_HEX_COLOR = "#44232323";
+
+	BroadcastReceiver minuteChangeReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -128,7 +147,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		for (Sensor sensor : deviceSensors)
 		{
-			if (sensor.getType() == Sensor.TYPE_TEMPERATURE)
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
+					&& sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE)
+				hasTempratureSensor = true;
+
+			else if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH
+					&& sensor.getType() == Sensor.TYPE_TEMPERATURE)
 				hasTempratureSensor = true;
 
 			else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
@@ -149,27 +173,28 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (hasTempratureSensor)
 		{
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-				sensors[sTemprature] = sensorManager
+				sensors[S_TEMPRATURE] = sensorManager
 						.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 			else
-				sensors[sTemprature] = sensorManager
+				sensors[S_TEMPRATURE] = sensorManager
 						.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
 		}
 
 		if (hasRelativeHumiditySensor
 				&& android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-			sensors[sRelativeHumidity] = sensorManager
+			sensors[S_RELATIVE_HUMIDITY] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 
 		if (hasPressureSensor)
-			sensors[sPressure] = sensorManager
+			sensors[S_PRESSURE] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_PRESSURE);
 
 		if (hasLightSensor)
-			sensors[sLight] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+			sensors[S_LIGHT] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_LIGHT);
 
 		if (hasMagneticFieldSensor)
-			sensors[sMagneticField] = sensorManager
+			sensors[S_MAGNETIC_FIELD] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
 		// initialize TextViews
@@ -227,7 +252,43 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			tvMagneticField.setText(resources
 					.getString(R.string.sensor_unavailable));
 
+		// date and time initialization
+		date = new TextView(this);
+		time = new TextView(this);
+
+		Calendar calendar = Calendar.getInstance(Locale.getDefault());
+		calendar.setTimeInMillis(new Date().getTime());
+
+		date.setText(DateFormat.format(DATE_FORMAT, calendar));
+		time.setText(DateFormat.format(TIME_FORMAT, calendar));
+
 		Log.d(TAG, "onCreated");
+	}
+
+	@Override
+	public void onStart()
+	{
+		super.onStart();
+
+		minuteChangeReceiver = new BroadcastReceiver()
+		{
+			@Override
+			public void onReceive(Context ctx, Intent intent)
+			{
+				if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0)
+				{
+					Calendar calendar = Calendar.getInstance(Locale
+							.getDefault());
+					calendar.setTimeInMillis(new Date().getTime());
+
+					date.setText(DateFormat.format(DATE_FORMAT, calendar));
+					time.setText(DateFormat.format(TIME_FORMAT, calendar));
+				}
+			}
+		};
+
+		this.registerReceiver(minuteChangeReceiver, new IntentFilter(
+				Intent.ACTION_TIME_TICK));
 	}
 
 	@Override
@@ -267,32 +328,32 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (hasTempratureSensor
 				&& (showTemprature || showAbsoluteHumidity || showDewPoint))
 		{
-			sensorManager.registerListener(this, sensors[sTemprature],
+			sensorManager.registerListener(this, sensors[S_TEMPRATURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Temperature sensor registered");
 		}
 		if (hasRelativeHumiditySensor
 				&& (showRelativeHumidity || showAbsoluteHumidity || showDewPoint))
 		{
-			sensorManager.registerListener(this, sensors[sRelativeHumidity],
+			sensorManager.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Relative humidity sensor registered");
 		}
 		if (hasPressureSensor && showPressure)
 		{
-			sensorManager.registerListener(this, sensors[sPressure],
+			sensorManager.registerListener(this, sensors[S_PRESSURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Pressure sensor registered");
 		}
 		if (hasLightSensor && showLight)
 		{
-			sensorManager.registerListener(this, sensors[sLight],
+			sensorManager.registerListener(this, sensors[S_LIGHT],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Light sensor registered");
 		}
 		if (hasMagneticFieldSensor && showMagneticField)
 		{
-			sensorManager.registerListener(this, sensors[sMagneticField],
+			sensorManager.registerListener(this, sensors[S_MAGNETIC_FIELD],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Magnetic field sensor registered");
 		}
@@ -318,6 +379,13 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (tvMagneticField.getParent() != null)
 			((LinearLayout) tvMagneticField.getParent())
 					.removeView(tvMagneticField);
+		if (date.getParent() != null)
+			((LinearLayout) date.getParent()).removeView(date);
+		if (time.getParent() != null)
+			((LinearLayout) time.getParent()).removeView(time);
+
+		// add date and time
+		addDateAndTimeRow();
 
 		// add chosen children to base layout
 		if (showTemprature)
@@ -356,8 +424,8 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		sensorDataRow.setLayoutParams(params);
 		sensorDataRow.setOrientation(LinearLayout.HORIZONTAL);
-		sensorDataRow.setPadding(dataRowPaddingLeft, dataRowPaddingTop,
-				dataRowPaddingRight, dataRowPaddingBottom);
+		sensorDataRow.setPadding(DATA_ROW_PADDING_LEFT, DATA_ROW_PADDING_TOP,
+				DATA_ROW_PADDING_RIGHT, DATA_ROW_PADDING_BOTTOM);
 		sensorDataRow.setGravity(Gravity.CENTER);
 
 		sensorIcon = new ImageView(this);
@@ -383,8 +451,33 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		// dividing line
 		dividingLine = new View(this);
 		dividingLine.setLayoutParams(new TableRow.LayoutParams(
-				TableRow.LayoutParams.FILL_PARENT, dividingLineHeight));
-		dividingLine.setBackgroundColor(Color.parseColor("#44232323"));
+				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
+		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
+
+		dataPaneBaseLayout.addView(dividingLine);
+	}
+
+	private void addDateAndTimeRow()
+	{
+		dateAndTimeRow = new LinearLayout(this);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		dateAndTimeRow.setLayoutParams(params);
+		dateAndTimeRow.setOrientation(LinearLayout.VERTICAL);
+		dateAndTimeRow.setPadding(DATE_TIME_ROW_PADDING_LEFT,
+				DATE_TIME_ROW_PADDING_TOP, DATE_TIME_ROW_PADDING_RIGHT,
+				DATE_TIME_ROW_PADDING_BOTTOM);
+		dateAndTimeRow.setGravity(Gravity.CENTER);
+
+		dateAndTimeRow.addView(date);
+		dateAndTimeRow.addView(time);
+		dataPaneBaseLayout.addView(dateAndTimeRow);
+
+		// dividing line
+		dividingLine = new View(this);
+		dividingLine.setLayoutParams(new TableRow.LayoutParams(
+				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
+		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
 
 		dataPaneBaseLayout.addView(dividingLine);
 	}
@@ -406,6 +499,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			sensorManager.unregisterListener(this);
 			Log.d(TAG, "Sensors unregistered");
 		}
+	}
+
+	@Override
+	public void onStop()
+	{
+		super.onStop();
+		if (minuteChangeReceiver != null)
+			unregisterReceiver(minuteChangeReceiver);
 	}
 
 	@Override
@@ -462,7 +563,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		if (showTemprature && event.sensor.equals(sensors[sTemprature]))
+		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE]))
 		{
 			temperature = event.values[0];
 			if (temperatureUnit.equals(resources
@@ -481,7 +582,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 
 		if (showRelativeHumidity
-				&& event.sensor.equals(sensors[sRelativeHumidity]))
+				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY]))
 		{
 			relativeHumidity = event.values[0];
 			tvRelativeHumidity.setText(String.format("%.0f", relativeHumidity)
@@ -491,13 +592,13 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 
 		if (showAbsoluteHumidity
-				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
-						.equals(sensors[sRelativeHumidity])))
+				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
+						.equals(sensors[S_RELATIVE_HUMIDITY])))
 		{
 			updateAbsoluteHumidity();
 		}
 
-		if (showPressure && event.sensor.equals(sensors[sPressure]))
+		if (showPressure && event.sensor.equals(sensors[S_PRESSURE]))
 		{
 			pressure = event.values[0];
 			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
@@ -505,20 +606,20 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 
 		if (showDewPoint
-				&& (event.sensor.equals(sensors[sTemprature]) || event.sensor
-						.equals(sensors[sRelativeHumidity])))
+				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
+						.equals(sensors[S_RELATIVE_HUMIDITY])))
 		{
 			updateDewPoint();
 		}
 
-		if (showLight && event.sensor.equals(sensors[sLight]))
+		if (showLight && event.sensor.equals(sensors[S_LIGHT]))
 		{
 			light = event.values[0];
 			tvLight.setText(String.format("%.0f", light) + " lx");
 			Log.d(TAG, "Got light sensor event: " + light);
 		}
 
-		if (showMagneticField && event.sensor.equals(sensors[sMagneticField]))
+		if (showMagneticField && event.sensor.equals(sensors[S_MAGNETIC_FIELD]))
 		{
 			float magneticFieldX = event.values[0];
 			float magneticFieldY = event.values[1];
