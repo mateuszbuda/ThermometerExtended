@@ -36,6 +36,7 @@ import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+@SuppressWarnings("deprecation")
 public class DataPane extends ActionBarActivity implements SensorEventListener
 {
 	static final String TAG = "DataPane";
