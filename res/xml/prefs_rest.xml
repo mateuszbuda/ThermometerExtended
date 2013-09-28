@@ -2,15 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <ListPreference
-        android:defaultValue="10"
-        android:dialogTitle="@string/prefs_freq_title"
-        android:entries="@array/prefs_freq_keys"
-        android:entryValues="@array/prefs_freq_vals"
-        android:icon="@drawable/ic_menu_refresh"
-        android:key="@string/prefs_freq_key"
-        android:order="92"
-        android:title="@string/prefs_freq_title" />
-    <ListPreference
         android:defaultValue="celsius"
         android:dialogTitle="@string/prefs_temp_unit_title"
         android:entries="@array/prefs_temp_unit_keys"
@@ -19,16 +10,6 @@
         android:key="@string/prefs_temp_unit_key"
         android:order="91"
         android:title="@string/prefs_temp_unit_title" />
-
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:icon="@android:drawable/ic_menu_save"
-        android:key="@string/prefs_save_data_key"
-        android:order="93"
-        android:summaryOff="@string/prefs_save_data_summary_off"
-        android:summaryOn="@string/prefs_save_data_summary_on"
-        android:title="@string/prefs_save_data_title" />
-
     <ListPreference
         android:defaultValue="#FFF0F8FF"
         android:dialogTitle="@string/prefs_background_color_title"
@@ -36,7 +17,15 @@
         android:entryValues="@array/prefs_background_color_vals"
         android:icon="@drawable/ic_menu_star"
         android:key="@string/prefs_background_color_key"
-        android:order="94"
+        android:order="92"
         android:title="@string/prefs_background_color_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:icon="@android:drawable/ic_menu_save"
+        android:key="@string/prefs_save_data_key"
+        android:summaryOff="@string/prefs_save_data_summary_off"
+        android:summaryOn="@string/prefs_save_data_summary_on"
+        android:title="@string/prefs_save_data_title" android:order="93"/>
 
 </PreferenceScreen>

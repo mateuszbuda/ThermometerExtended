@@ -96,10 +96,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	TextView time;
 	TextView date;
+
 	static final String TIME_FORMAT = "hh:mm a";
 	static final String DATE_FORMAT = "EEEE, dd MMMM";
 
 	String temperatureUnit;
+
 	static final int CELSIUS = 0;
 	static final int FAHRENHEIT = 1;
 	static final int KELVIN = 2;
@@ -117,12 +119,15 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	static final int DATA_ROW_PADDING_TOP = 8;
 	static final int DATA_ROW_PADDING_RIGHT = 0;
 	static final int DATA_ROW_PADDING_BOTTOM = 10;
+
 	static final int DATE_TIME_ROW_PADDING_LEFT = 0;
 	static final int DATE_TIME_ROW_PADDING_TOP = 0;
 	static final int DATE_TIME_ROW_PADDING_RIGHT = 0;
 	static final int DATE_TIME_ROW_PADDING_BOTTOM = 8;
+
 	static final int DIV_LINE_HEIGHT = 1;
 	static final String DIV_LINE_HEX_COLOR = "#44232323";
+	static final String BACKGROUND_DEFAULT_COLOR = "#FFF0F8FF";
 
 	BroadcastReceiver minuteChangeReceiver;
 
@@ -199,59 +204,19 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
 		// initialize TextViews
-		tvTemprature = new TextView(this);
-		tvTemprature.setGravity(Gravity.CENTER);
-		tvTemprature.setTextAppearance(this,
-				android.R.style.TextAppearance_Large);
-		if (!hasTempratureSensor)
-			tvTemprature.setText(resources
-					.getString(R.string.sensor_unavailable));
-
-		tvRelativeHumidity = new TextView(this);
-		tvRelativeHumidity.setGravity(Gravity.CENTER);
-		tvRelativeHumidity.setTextAppearance(this,
-				android.R.style.TextAppearance_Large);
-		if (!hasRelativeHumiditySensor)
-			tvRelativeHumidity.setText(resources
-					.getString(R.string.sensor_unavailable));
-
-		tvAbsoluteHumidity = new TextView(this);
-		tvAbsoluteHumidity.setGravity(Gravity.CENTER);
-		tvAbsoluteHumidity.setTextAppearance(this,
-				android.R.style.TextAppearance_Large);
-		if (!hasTempratureSensor || !hasRelativeHumiditySensor)
-			tvAbsoluteHumidity.setText(resources
-					.getString(R.string.sensor_unavailable));
-
-		tvPressure = new TextView(this);
-		tvPressure.setGravity(Gravity.CENTER);
-		tvPressure
-				.setTextAppearance(this, android.R.style.TextAppearance_Large);
-		if (!hasPressureSensor)
-			tvPressure
-					.setText(resources.getString(R.string.sensor_unavailable));
-
-		tvDewPoint = new TextView(this);
-		tvDewPoint.setGravity(Gravity.CENTER);
-		tvDewPoint
-				.setTextAppearance(this, android.R.style.TextAppearance_Large);
-		if (!hasTempratureSensor || !hasRelativeHumiditySensor)
-			tvDewPoint
-					.setText(resources.getString(R.string.sensor_unavailable));
-
-		tvLight = new TextView(this);
-		tvLight.setGravity(Gravity.CENTER);
-		tvLight.setTextAppearance(this, android.R.style.TextAppearance_Large);
-		if (!hasLightSensor)
-			tvLight.setText(resources.getString(R.string.sensor_unavailable));
-
-		tvMagneticField = new TextView(this);
-		tvMagneticField.setGravity(Gravity.CENTER);
-		tvMagneticField.setTextAppearance(this,
-				android.R.style.TextAppearance_Large);
-		if (!hasMagneticFieldSensor)
-			tvMagneticField.setText(resources
-					.getString(R.string.sensor_unavailable));
+		initializeTextViewSensor(tvTemprature = new TextView(this),
+				hasTempratureSensor);
+		initializeTextViewSensor(tvRelativeHumidity = new TextView(this),
+				hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvAbsoluteHumidity = new TextView(this),
+				hasTempratureSensor && hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvPressure = new TextView(this),
+				hasPressureSensor);
+		initializeTextViewSensor(tvDewPoint = new TextView(this),
+				hasTempratureSensor && hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvLight = new TextView(this), hasLightSensor);
+		initializeTextViewSensor(tvMagneticField = new TextView(this),
+				hasMagneticFieldSensor);
 
 		// date and time initialization
 		date = new TextView(this);
@@ -264,6 +229,16 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		time.setText(DateFormat.format(TIME_FORMAT, calendar));
 
 		Log.d(TAG, "onCreated");
+	}
+
+	private void initializeTextViewSensor(TextView tvSensor, boolean hasSensor)
+	{
+		tvSensor.setGravity(Gravity.CENTER);
+		tvSensor.setTextAppearance(this, android.R.style.TextAppearance_Large);
+		if (!hasSensor)
+			tvSensor.setText(resources.getString(R.string.sensor_unavailable));
+		else
+			tvSensor.setText(resources.getString(R.string.sensor_no_data));
 	}
 
 	@Override
@@ -303,7 +278,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
 				.getString(resources
 						.getString(R.string.prefs_background_color_key),
-						"#FFF0F8FF")));
+						BACKGROUND_DEFAULT_COLOR)));
 		// set temperature unit
 		temperatureUnit = preferences.getString(
 				resources.getString(R.string.prefs_temp_unit_key),
@@ -506,6 +481,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	public void onStop()
 	{
 		super.onStop();
+
 		if (minuteChangeReceiver != null)
 			unregisterReceiver(minuteChangeReceiver);
 	}
@@ -524,7 +500,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		switch (item.getItemId())
 		{
 		case R.id.action_history:
-			startActivity(new Intent(this, HistoryActivity.class));
+			startActivity(new Intent(this, HistoryMenuActivity.class));
 			return true;
 
 		case R.id.action_settings:

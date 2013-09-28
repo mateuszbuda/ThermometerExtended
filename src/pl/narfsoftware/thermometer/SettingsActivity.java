@@ -75,8 +75,6 @@ public class SettingsActivity extends PreferenceActivity
 		bindPreferenceSummaryToValue(findPreference(getResources().getString(
 				R.string.prefs_temp_unit_key)));
 		bindPreferenceSummaryToValue(findPreference(getResources().getString(
-				R.string.prefs_freq_key)));
-		bindPreferenceSummaryToValue(findPreference(getResources().getString(
 				R.string.prefs_background_color_key)));
 
 	}

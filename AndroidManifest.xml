@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="pl.narfsoftware.thermometer.HistoryActivity"
+            android:name="pl.narfsoftware.thermometer.HistoryMenuActivity"
             android:label="@string/title_activity_history"
             android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
             <meta-data
@@ -38,6 +38,14 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pl.narfsoftware.thermometer.DataPane" />
+        </activity>
+        <activity
+            android:name="pl.narfsoftware.thermometer.HistoryPlotActivity"
+            android:label="@string/title_activity_history_plot"
+            android:parentActivityName="pl.narfsoftware.thermometer.HistoryMenuActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.narfsoftware.thermometer.HistoryMenuActivity" />
         </activity>
     </application>
 
