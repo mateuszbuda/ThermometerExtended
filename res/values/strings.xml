@@ -94,5 +94,8 @@
     <string name="prefs_save_data_title">Save Data</string>
     <string name="prefs_save_data_summary_on">Stop saving data</string>
     <string name="prefs_save_data_summary_off">Start saving data</string>
+    <string name="action_clear_data">Erase History</string>
+    <string name="data_erased_success_toast">Data successfully erased</string>
+    <string name="data_erased_fail_toast">Failed to erase data :(</string>
 
 </resources>
