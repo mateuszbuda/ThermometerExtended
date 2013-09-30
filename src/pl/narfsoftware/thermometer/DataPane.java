@@ -311,6 +311,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		showMagneticField = preferences.getBoolean(
 				getResources().getString(R.string.magnetic_field_key), false);
 
+		sensorManager.unregisterListener(this);
+		Log.d(TAG, "Sensors unregistered");
+
 		// register chosen sensors
 		if (hasTempratureSensor
 				&& (showTemprature || showAbsoluteHumidity || showDewPoint))

@@ -26,7 +26,7 @@ public class ThermometerApp extends Application implements
 
 		sensorData = new SensorData(getApplicationContext());
 
-		Log.d(TAG, "onCreate");
+		Log.d(TAG, "onCreated");
 	}
 
 	public SensorData getSensorData()

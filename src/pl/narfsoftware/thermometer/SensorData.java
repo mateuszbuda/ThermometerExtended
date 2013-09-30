@@ -7,9 +7,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
-import com.jjoe64.graphview.GraphViewSeries;
 
 public class SensorData
 {
@@ -36,9 +36,12 @@ public class SensorData
 
 		database.insertWithOnConflict(table, null, values,
 				SQLiteDatabase.CONFLICT_IGNORE);
+
+		Log.d(TAG, "insert into " + table + " values (" + timestamp + ", "
+				+ value + ")");
 	}
 
-	public GraphViewSeries query(String table)
+	public GraphViewData[] query(String table)
 	{
 		database = dbHelper.getReadableDatabase();
 
@@ -58,10 +61,7 @@ public class SensorData
 
 		cursor.close();
 
-		GraphViewSeries graphViewSeries = new GraphViewSeries(
-				graphViewData.toArray(new GraphViewData[0]));
-
-		return graphViewSeries;
+		return graphViewData.toArray(new GraphViewData[0]);
 	}
 
 	public void close()

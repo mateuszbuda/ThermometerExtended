@@ -61,6 +61,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_TEMPERATURE);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_TEMPERATUE);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_TEMPERATURE);
 				startActivity(intent);
 			}
 		});
@@ -75,6 +77,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_RELATIVE_HUMIDITY);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_RELATIVE_HUMIDITY);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_RELATIVE_HUMIDITY);
 				startActivity(intent);
 			}
 		});
@@ -89,6 +93,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_ABSOLUTE_HUMIDITY);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_ABSOLUTE_HUMIDITY);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_ABSOLUTE_HUMIDITY);
 				startActivity(intent);
 			}
 		});
@@ -103,6 +109,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_PRESSURE);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_PRESSURE);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_PRESSURE);
 				startActivity(intent);
 			}
 		});
@@ -117,6 +125,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_DEW_POINT);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_DEW_POINT);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_DEW_POINT);
 				startActivity(intent);
 			}
 		});
@@ -131,6 +141,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_LIGHT);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_LIGHT);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_LIGHT);
 				startActivity(intent);
 			}
 		});
@@ -145,6 +157,8 @@ public class HistoryMenuActivity extends Activity
 						HistoryPlotActivity.INTENT_FROM_MAGNETIC_FIELD);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_MAGNETIC_FIELD);
+				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+						HistoryPlotActivity.UNIT_MAGNETIC_FIELD);
 				startActivity(intent);
 			}
 		});
