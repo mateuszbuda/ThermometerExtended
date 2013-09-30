@@ -197,18 +197,33 @@ public class HistoryMenuActivity extends Activity
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		case R.id.action_clear_data:
-			if (this.deleteDatabase(DbHelper.DB_NAME))
+			if (!PreferenceManager.getDefaultSharedPreferences(this)
+					.getBoolean(
+							getResources().getString(
+									R.string.prefs_save_data_key), true))
+			{
+				if (this.deleteDatabase(DbHelper.DB_NAME))
+					Toast.makeText(
+							this,
+							getResources().getString(
+									R.string.data_erased_success_toast),
+							Toast.LENGTH_SHORT).show();
+				else
+					Toast.makeText(
+							this,
+							getResources().getString(
+									R.string.data_erased_fail_toast),
+							Toast.LENGTH_SHORT).show();
+			} else
 				Toast.makeText(
 						this,
 						getResources().getString(
-								R.string.data_erased_success_toast),
+								R.string.data_erased_fail_toast)
+								+ "\n"
+								+ getResources().getString(
+										R.string.data_erased_hint_toast),
 						Toast.LENGTH_SHORT).show();
-			else
-				Toast.makeText(
-						this,
-						getResources().getString(
-								R.string.data_erased_fail_toast),
-						Toast.LENGTH_SHORT).show();
+
 		}
 		return super.onOptionsItemSelected(item);
 	}

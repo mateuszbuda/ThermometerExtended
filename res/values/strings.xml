@@ -97,5 +97,6 @@
     <string name="action_clear_data">Erase History</string>
     <string name="data_erased_success_toast">Data successfully erased</string>
     <string name="data_erased_fail_toast">Failed to erase data :(</string>
+    <string name="data_erased_hint_toast">Stop saving data first.</string>
 
 </resources>

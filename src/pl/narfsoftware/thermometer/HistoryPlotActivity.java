@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GraphView.GraphViewData;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
@@ -35,6 +34,11 @@ public class HistoryPlotActivity extends Activity
 	SensorData sensorData;
 	GraphViewSeries dataSeries;
 
+	static final float TEXT_SIZE = 10f;
+	static final int HORIZONTAL_LABELS_COUNT = 6;
+	static final int VERTICAL_LABELS_COUNT = 6;
+	static final int VERTICAL_LABELS_WIDTH = 40;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -42,7 +46,7 @@ public class HistoryPlotActivity extends Activity
 		setContentView(R.layout.activity_history_plot);
 		setupActionBar();
 
-		sensorData = new SensorData(this);
+		sensorData = ((ThermometerApp) getApplication()).getSensorData();
 
 		backgroundLayout = (LinearLayout) findViewById(R.id.graph);
 
@@ -51,18 +55,15 @@ public class HistoryPlotActivity extends Activity
 		graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 		graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 		graphView.getGraphViewStyle().setGridColor(Color.GRAY);
-		graphView.getGraphViewStyle().setTextSize(10f);
-		graphView.getGraphViewStyle().setNumHorizontalLabels(6);
-		graphView.getGraphViewStyle().setNumVerticalLabels(6);
-		graphView.getGraphViewStyle().setVerticalLabelsWidth(36);
+		graphView.getGraphViewStyle().setTextSize(TEXT_SIZE);
+		graphView.getGraphViewStyle().setNumHorizontalLabels(
+				HORIZONTAL_LABELS_COUNT);
+		graphView.getGraphViewStyle().setNumVerticalLabels(
+				VERTICAL_LABELS_COUNT);
+		graphView.getGraphViewStyle().setVerticalLabelsWidth(
+				VERTICAL_LABELS_WIDTH);
 
-		GraphViewSeries exampleSeries = new GraphViewSeries(new GraphViewData[]
-		{ new GraphViewData(1, 2d), new GraphViewData(2, 2d),
-				new GraphViewData(3, 3d), new GraphViewData(4, 2d),
-				new GraphViewData(5, 3d), new GraphViewData(6, 3d) });
-
-		LinearLayout layout = (LinearLayout) findViewById(R.id.graph);
-		layout.addView(graphView);
+		backgroundLayout = (LinearLayout) findViewById(R.id.graph);
 	}
 
 	@Override
@@ -80,8 +81,41 @@ public class HistoryPlotActivity extends Activity
 
 		this.setTitle(getIntent().getExtras().getString(INTENT_ORIGIN)
 				+ " History");
-		
+
+		if (dataSeries.getValues().length <= 0)
+		{
+			graphView.getGraphViewStyle().setVerticalLabelsColor(
+					Color.parseColor(PreferenceManager
+							.getDefaultSharedPreferences(this).getString(
+									"background_color",
+									DataPane.BACKGROUND_DEFAULT_COLOR)));
+			graphView.getGraphViewStyle().setVerticalLabelsWidth(1);
+		} else
+		{
+			graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
+			graphView.getGraphViewStyle().setVerticalLabelsWidth(
+					VERTICAL_LABELS_WIDTH);
+		}
+
 		graphView.addSeries(dataSeries);
+		backgroundLayout.addView(graphView);
+	}
+
+	@Override
+	protected void onStop()
+	{
+		super.onStop();
+
+		if (graphView.getParent() != null)
+			backgroundLayout.removeView(graphView);
+
+		boolean saveData = ((ThermometerApp) getApplication()).preferences
+				.getBoolean(
+						getResources().getString(R.string.prefs_save_data_key),
+						false);
+
+		if (!saveData)
+			sensorData.close();
 	}
 
 	/**
