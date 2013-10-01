@@ -55,6 +55,7 @@ public class SettingsActivity extends PreferenceActivity
 	 * device configuration dictates that a simplified, single-pane UI should be
 	 * shown.
 	 */
+	@SuppressWarnings("deprecation")
 	private void setupSimplePreferencesScreen()
 	{
 		addPreferencesFromResource(R.xml.prefs_base);
@@ -76,6 +77,10 @@ public class SettingsActivity extends PreferenceActivity
 				R.string.prefs_temp_unit_key)));
 		bindPreferenceSummaryToValue(findPreference(getResources().getString(
 				R.string.prefs_background_color_key)));
+		bindPreferenceSummaryToValue(findPreference(getResources().getString(
+				R.string.prefs_date_format_key)));
+		bindPreferenceSummaryToValue(findPreference(getResources().getString(
+				R.string.prefs_time_format_key)));
 
 	}
 

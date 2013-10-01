@@ -16,6 +16,7 @@ import android.text.Html;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.CustomLabelFormatter;
 import com.jjoe64.graphview.GraphView;
@@ -129,6 +130,13 @@ public class HistoryPlotActivity extends Activity
 									"background_color",
 									DataPane.BACKGROUND_DEFAULT_COLOR)));
 			graphView.getGraphViewStyle().setVerticalLabelsWidth(1);
+			Toast.makeText(
+					this,
+					getResources().getString(R.string.no_data_info_toast)
+							+ "\n"
+							+ getResources().getString(
+									R.string.no_data_hint_toast),
+					Toast.LENGTH_LONG).show();
 		} else
 		{
 			// set unit

@@ -20,7 +20,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.format.DateFormat;
@@ -100,12 +99,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	TextView time;
 	TextView date;
-
-	static final String TIME_FORMAT = "hh:mm a";
-	static final String DATE_FORMAT = "EEEE, dd MMMM";
+	String timeFormat = DEFAULT_TIME_FORMAT;
+	String dateFormat = DEFAULT_DATE_FORMAT;
+	static final String DEFAULT_TIME_FORMAT = "kk:mm a";
+	static final String DEFAULT_DATE_FORMAT = "EEEE, dd MMMM";
 
 	String temperatureUnit;
-
 	static final int CELSIUS = 0;
 	static final int FAHRENHEIT = 1;
 	static final int KELVIN = 2;
@@ -225,12 +224,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		date = new TextView(this);
 		time = new TextView(this);
 
-		Calendar calendar = Calendar.getInstance(Locale.getDefault());
-		calendar.setTimeInMillis(new Date().getTime());
-
-		date.setText(DateFormat.format(DATE_FORMAT, calendar));
-		time.setText(DateFormat.format(TIME_FORMAT, calendar));
-
 		Log.d(TAG, "onCreated");
 	}
 
@@ -261,8 +254,8 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 							.getDefault());
 					calendar.setTimeInMillis(new Date().getTime());
 
-					date.setText(DateFormat.format(DATE_FORMAT, calendar));
-					time.setText(DateFormat.format(TIME_FORMAT, calendar));
+					date.setText(DateFormat.format(dateFormat, calendar));
+					time.setText(DateFormat.format(timeFormat, calendar));
 				}
 			}
 		};
@@ -277,7 +270,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		super.onResume();
 
 		// get current preferences
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		preferences = ((ThermometerApp) getApplication()).preferences;
 		// set background color
 		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
 				.getString(
@@ -291,6 +284,13 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		// whether to save data
 		saveData = preferences.getBoolean(
 				getResources().getString(R.string.prefs_save_data_key), false);
+		// set date and time format
+		dateFormat = preferences.getString(
+				getResources().getString(R.string.prefs_date_format_key),
+				DEFAULT_DATE_FORMAT);
+		timeFormat = preferences.getString(
+				getResources().getString(R.string.prefs_time_format_key),
+				DEFAULT_TIME_FORMAT);
 
 		// get from preferences which sensors to show
 		showTemprature = preferences.getBoolean(
@@ -369,12 +369,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (tvMagneticField.getParent() != null)
 			((LinearLayout) tvMagneticField.getParent())
 					.removeView(tvMagneticField);
-		if (date.getParent() != null)
-			((LinearLayout) date.getParent()).removeView(date);
-		if (time.getParent() != null)
-			((LinearLayout) time.getParent()).removeView(time);
 
 		// add date and time
+		Calendar calendar = Calendar.getInstance(Locale.getDefault());
+		calendar.setTimeInMillis(new Date().getTime());
+
+		date.setText(DateFormat.format(dateFormat, calendar));
+		time.setText(DateFormat.format(timeFormat, calendar));
+
 		addDateAndTimeRow();
 
 		// add chosen children to base layout
@@ -404,6 +406,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		if (showMagneticField)
 			addSensorDataRow(R.drawable.magnetic_field,
 					R.string.magnetic_field_title, tvMagneticField);
+
 	}
 
 	private void addSensorDataRow(int iconResId, int titleResId,
@@ -459,8 +462,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				DATE_TIME_ROW_PADDING_BOTTOM);
 		dateAndTimeRow.setGravity(Gravity.CENTER);
 
-		dateAndTimeRow.addView(date);
-		dateAndTimeRow.addView(time);
+		if (!dateFormat.equals(""))
+			dateAndTimeRow.addView(date);
+		if (!timeFormat.equals(""))
+			dateAndTimeRow.addView(time);
+
 		dataPaneBaseLayout.addView(dateAndTimeRow);
 
 		// dividing line
@@ -470,6 +476,8 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
 
 		dataPaneBaseLayout.addView(dividingLine);
+
+		Log.d(TAG, "Date and time row added");
 	}
 
 	@Override
@@ -504,6 +512,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		if (!saveData)
 			sensorData.close();
+
+		if (date.getParent() != null)
+			((LinearLayout) date.getParent()).removeView(date);
+		if (time.getParent() != null)
+			((LinearLayout) time.getParent()).removeView(time);
 	}
 
 	@Override
