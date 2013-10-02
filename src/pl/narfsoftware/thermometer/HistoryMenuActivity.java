@@ -210,6 +210,7 @@ public class HistoryMenuActivity extends Activity
 			//
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
+
 		case R.id.action_clear_data:
 			if (!PreferenceManager.getDefaultSharedPreferences(this)
 					.getBoolean(
@@ -237,6 +238,11 @@ public class HistoryMenuActivity extends Activity
 								+ getResources().getString(
 										R.string.data_erased_hint_toast),
 						Toast.LENGTH_SHORT).show();
+			return true;
+
+		case R.id.action_settings:
+			startActivity(new Intent(this, SettingsActivity.class));
+			return true;
 
 		}
 		return super.onOptionsItemSelected(item);
