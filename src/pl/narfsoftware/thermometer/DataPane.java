@@ -1,7 +1,6 @@
 package pl.narfsoftware.thermometer;
 
 import java.lang.reflect.Field;
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -46,8 +44,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	LinearLayout dataPaneBaseLayout;
 	ScrollView backgroundLayout;
 
-	SensorData sensorData;
-
 	SensorManager sensorManager;
 	Sensor[] sensors = new Sensor[SENSORS_COUNT];
 
@@ -71,8 +67,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	boolean showDewPoint;
 	boolean showLight;
 	boolean showMagneticField;
-
-	boolean saveData;
 
 	float temperature;
 	float relativeHumidity;
@@ -139,8 +133,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data_pane);
-
-		sensorData = ((ThermometerApp) getApplication()).getSensorData();
 
 		getOverflowMenu();
 
@@ -281,9 +273,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		temperatureUnit = preferences.getString(
 				getResources().getString(R.string.prefs_temp_unit_key),
 				getResources().getStringArray(R.array.prefs_temp_unit_vals)[0]);
-		// whether to save data
-		saveData = preferences.getBoolean(
-				getResources().getString(R.string.prefs_save_data_key), false);
 		// set date and time format
 		dateFormat = preferences.getString(
 				getResources().getString(R.string.prefs_date_format_key),
@@ -485,18 +474,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		super.onPause();
 
-		// get resources
-		Resources resources = getResources();
-
-		saveData = preferences.getBoolean(
-				resources.getString(R.string.prefs_save_data_key), false);
-
-		// unregister sensors, if no longer needed
-		if (!saveData)
-		{
-			sensorManager.unregisterListener(this);
-			Log.d(TAG, "Sensors unregistered");
-		}
+		// unregister sensors, yet no longer needed
+		sensorManager.unregisterListener(this);
+		Log.d(TAG, "Sensors unregistered");
 	}
 
 	@Override
@@ -506,12 +486,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		if (minuteChangeReceiver != null)
 			unregisterReceiver(minuteChangeReceiver);
-
-		saveData = ((ThermometerApp) getApplication()).preferences.getBoolean(
-				getResources().getString(R.string.prefs_save_data_key), false);
-
-		if (!saveData)
-			sensorData.close();
 
 		if (date.getParent() != null)
 			((LinearLayout) date.getParent()).removeView(date);
@@ -573,18 +547,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		saveData = preferences.getBoolean(
-				getResources().getString(R.string.prefs_save_data_key), false);
-
-		Date date = new Date();
-
 		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE]))
 		{
 			temperature = event.values[0];
-
-			if (saveData)
-				sensorData.insert(DbHelper.TABLE_TEMPERATUE, (new Timestamp(
-						date.getTime()).getTime()), temperature);
 
 			if (temperatureUnit.equals(getResources().getStringArray(
 					R.array.prefs_temp_unit_vals)[CELSIUS]))
@@ -606,11 +571,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		{
 			relativeHumidity = event.values[0];
 
-			if (saveData)
-				sensorData.insert(DbHelper.TABLE_RELATIVE_HUMIDITY,
-						(new Timestamp(date.getTime()).getTime()),
-						relativeHumidity);
-
 			tvRelativeHumidity.setText(String.format("%.0f", relativeHumidity)
 					+ " %");
 
@@ -629,10 +589,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		{
 			pressure = event.values[0];
 
-			if (saveData)
-				sensorData.insert(DbHelper.TABLE_PRESSURE,
-						(new Timestamp(date.getTime()).getTime()), pressure);
-
 			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
 
 			Log.d(TAG, "Got pressure sensor event: " + pressure);
@@ -649,10 +605,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		{
 			light = event.values[0];
 
-			if (saveData)
-				sensorData.insert(DbHelper.TABLE_LIGHT,
-						(new Timestamp(date.getTime()).getTime()), light);
-
 			tvLight.setText(String.format("%.0f", light) + " lx");
 
 			Log.d(TAG, "Got light sensor event: " + light);
@@ -665,11 +617,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			float magneticFieldZ = event.values[2];
 			magneticField = magneticFieldX + magneticFieldY + magneticFieldZ;
 
-			if (saveData)
-				sensorData.insert(DbHelper.TABLE_MAGNETIC_FIELD,
-						(new Timestamp(date.getTime()).getTime()),
-						magneticField);
-
 			tvMagneticField.setText(String.format("%.0f", magneticField) + " "
 					+ (char) 0x03BC + "T");
 
@@ -679,16 +626,10 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private void updateAbsoluteHumidity()
 	{
-		Date date = new Date();
-
 		absoluteHumidity = (float) (ABSOLUTE_HUMIDITY_CONSTANT * (relativeHumidity
 				/ HUNDRED_PERCENT
 				* A
 				* Math.exp(M * temperature / (TN + temperature)) / (ZERO_ABSOLUTE + temperature)));
-
-		if (saveData)
-			sensorData.insert(DbHelper.TABLE_ABSOLUTE_HUMIDITY, (new Timestamp(
-					date.getTime()).getTime()), absoluteHumidity);
 
 		tvAbsoluteHumidity.setText(Html.fromHtml(String.format("%.0f",
 				absoluteHumidity) + " g/m<sup><small>3</small></sup>"));
@@ -698,16 +639,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private void updateDewPoint()
 	{
-		Date date = new Date();
-
 		double h = Math.log(relativeHumidity / HUNDRED_PERCENT)
 				+ (M * temperature) / (TN + temperature);
 		dewPoint = (float) (TN * h / (M - h));
-
-		if (saveData)
-
-			sensorData.insert(DbHelper.TABLE_DEW_POINT,
-					(new Timestamp(date.getTime()).getTime()), dewPoint);
 
 		if (temperatureUnit.equals(getResources().getStringArray(
 				R.array.prefs_temp_unit_vals)[CELSIUS]))

@@ -50,6 +50,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="pl.narfsoftware.thermometer.HistoryMenuActivity" />
         </activity>
+
+        <service android:name=".SensorService" >
+        </service>
     </application>
 
 </manifest>
