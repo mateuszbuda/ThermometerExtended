@@ -26,6 +26,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:paddingBottom="@dimen/row_bottom_padding_small"
+            android:text="@string/about_header"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="@dimen/rows_bottom_padding"
+            android:text="@string/about_subheader"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
             android:linksClickable="true"
             android:paddingBottom="@dimen/row_bottom_padding_small"
             android:text="@string/about_site_header"
@@ -53,8 +69,16 @@
             android:layout_height="wrap_content"
             android:autoLink="email"
             android:gravity="center"
+            android:paddingBottom="@dimen/rows_bottom_padding"
             android:text="@string/about_email"
             android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/about_text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
 </ScrollView>
