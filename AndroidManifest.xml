@@ -3,7 +3,7 @@
     package="pl.narfsoftware.thermometer"
     android:installLocation="preferExternal"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.1" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -51,8 +51,25 @@
                 android:value="pl.narfsoftware.thermometer.HistoryMenuActivity" />
         </activity>
 
-        <service android:name=".SensorService" >
+        <service android:name="pl.narfsoftware.thermometer.SensorService" >
         </service>
+
+        <activity
+            android:name="pl.narfsoftware.thermometer.HelpActivity"
+            android:label="@string/title_activity_help"
+            android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.narfsoftware.thermometer.DataPane" />
+        </activity>
+        <activity
+            android:name="pl.narfsoftware.thermometer.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="pl.narfsoftware.thermometer.DataPane" />
+        </activity>
     </application>
 
 </manifest>

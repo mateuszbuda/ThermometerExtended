@@ -514,6 +514,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			startActivity(new Intent(this, SettingsActivity.class));
 			return true;
 
+		case R.id.action_help:
+			startActivity(new Intent(this, HelpActivity.class));
+			return true;
+
+		case R.id.action_about:
+			startActivity(new Intent(this, AboutActivity.class));
+			return true;
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}

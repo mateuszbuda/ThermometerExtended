@@ -1,5 +1,7 @@
 package pl.narfsoftware.thermometer;
 
+import java.lang.reflect.Field;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +33,8 @@ public class HistoryMenuActivity extends Activity
 	TextView lightHistory;
 	TextView magneticFieldHistory;
 
+	boolean noData = true;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -37,7 +42,7 @@ public class HistoryMenuActivity extends Activity
 		setContentView(R.layout.activity_history_menu);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getOverflowMenu();
 
 		historyBackground = (ScrollView) findViewById(R.id.historyBackgroundLayout);
 
@@ -218,10 +223,17 @@ public class HistoryMenuActivity extends Activity
 									R.string.prefs_save_data_key), true))
 			{
 				if (this.deleteDatabase(DbHelper.DB_NAME))
+				{
 					Toast.makeText(
 							this,
 							getResources().getString(
 									R.string.data_erased_success_toast),
+							Toast.LENGTH_SHORT).show();
+					noData = true;
+				} else if (noData)
+					Toast.makeText(
+							this,
+							getResources().getString(R.string.no_data_to_erase),
 							Toast.LENGTH_SHORT).show();
 				else
 					Toast.makeText(
@@ -246,6 +258,25 @@ public class HistoryMenuActivity extends Activity
 
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void getOverflowMenu()
+	{
+		try
+		{
+			ViewConfiguration config = ViewConfiguration.get(this);
+			Field menuKeyField = ViewConfiguration.class
+					.getDeclaredField("sHasPermanentMenuKey");
+			if (menuKeyField != null)
+			{
+				menuKeyField.setAccessible(true);
+				menuKeyField.setBoolean(config, false);
+			}
+		} catch (Exception e)
+		{
+
+			e.printStackTrace();
+		}
 	}
 
 }

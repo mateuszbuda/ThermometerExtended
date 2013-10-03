@@ -7,5 +7,6 @@
     <dimen name="rows_bottom_padding">12dp</dimen>
     <dimen name="plot_act_top_padding">8dp</dimen>
     <dimen name="plot_act_left_padding">8dp</dimen>
+    <dimen name="row_bottom_padding_small">6dp</dimen>
 
 </resources>

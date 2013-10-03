@@ -70,6 +70,7 @@ public class HistoryPlotActivity extends Activity
 
 	private final Handler handler = new Handler();
 	private Runnable timer;
+	private Runnable refresher;
 
 	static final long ONE_SECOND = 1000;
 
@@ -131,13 +132,13 @@ public class HistoryPlotActivity extends Activity
 									"background_color",
 									DataPane.BACKGROUND_DEFAULT_COLOR)));
 			graphView.getGraphViewStyle().setVerticalLabelsWidth(1);
-			Toast.makeText(
-					this,
-					getResources().getString(R.string.no_data_info_toast)
-							+ "\n"
-							+ getResources().getString(
-									R.string.no_data_hint_toast),
-					Toast.LENGTH_LONG).show();
+			String toastText = getResources().getString(
+					R.string.no_data_info_toast);
+			if (!saveData)
+				toastText += "\n"
+						+ getResources().getString(R.string.no_data_hint_toast);
+			Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
+
 		} else
 		{
 			// set unit
@@ -203,7 +204,72 @@ public class HistoryPlotActivity extends Activity
 				handler.postDelayed(this, ONE_SECOND);
 			}
 		};
+
+		refresher = new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (saveData && dataSeries.getValues().length > 1)
+				{
+					// needs refactoring
+
+					// set unit
+					tvUnit.setText(getIntent().getExtras().getString(
+							INTENT_EXTRA_UNIT));
+					backgroundLayout.addView(tvUnit);
+
+					graphView
+							.setCustomLabelFormatter(new CustomLabelFormatter()
+							{
+								@Override
+								public String formatLabel(double value,
+										boolean isValueX)
+								{
+									if (isValueX)
+									{
+										String date;
+										String time;
+
+										long now = new Timestamp(new Date()
+												.getTime()).getTime();
+
+										Date d = new Date((long) value);
+
+										date = new SimpleDateFormat(
+												DATE_FORMAT_OLDER).format(d);
+
+										time = new SimpleDateFormat(
+												DATE_FORMAT_TODAY).format(d);
+
+										return ((now - ((long) dataSeries
+												.getValues()[0].getX())) < DAY) ? time
+												: date;
+									}
+									return null;
+								}
+							});
+
+					graphView.getGraphViewStyle().setVerticalLabelsColor(
+							Color.BLACK);
+					graphView.getGraphViewStyle().setVerticalLabelsWidth(
+							VERTICAL_LABELS_WIDTH);
+
+					graphView.addSeries(dataSeries);
+					graphView
+							.setViewPort(
+									dataSeries.getValues()[0].getX(),
+									dataSeries.getValues()[dataSeries
+											.getValues().length - 1].getX()
+											- dataSeries.getValues()[0].getX());
+					graphView.setScalable(true);
+				} else
+					handler.postDelayed(this, ONE_SECOND);
+			}
+		};
+
 		handler.postDelayed(timer, ONE_SECOND);
+		handler.postDelayed(refresher, ONE_SECOND);
 	}
 
 	@Override
@@ -212,6 +278,7 @@ public class HistoryPlotActivity extends Activity
 		super.onPause();
 
 		handler.removeCallbacks(timer);
+		handler.removeCallbacks(refresher);
 	}
 
 	@Override
