@@ -62,7 +62,7 @@ public class HistoryMenuActivity extends ActionBarActivity
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
 				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_TEMPERATURE);
+						getResources().getString(R.string.ambient_temp_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_TEMPERATUE);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -77,8 +77,10 @@ public class HistoryMenuActivity extends ActionBarActivity
 			{
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
-				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_RELATIVE_HUMIDITY);
+				intent.putExtra(
+						HistoryPlotActivity.INTENT_ORIGIN,
+						getResources().getString(
+								R.string.relative_humidity_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_RELATIVE_HUMIDITY);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -93,8 +95,10 @@ public class HistoryMenuActivity extends ActionBarActivity
 			{
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
-				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_ABSOLUTE_HUMIDITY);
+				intent.putExtra(
+						HistoryPlotActivity.INTENT_ORIGIN,
+						getResources().getString(
+								R.string.absolute_humidity_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_ABSOLUTE_HUMIDITY);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -110,7 +114,7 @@ public class HistoryMenuActivity extends ActionBarActivity
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
 				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_PRESSURE);
+						getResources().getString(R.string.pressure_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_PRESSURE);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -126,7 +130,7 @@ public class HistoryMenuActivity extends ActionBarActivity
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
 				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_DEW_POINT);
+						getResources().getString(R.string.dew_point_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_DEW_POINT);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -142,7 +146,7 @@ public class HistoryMenuActivity extends ActionBarActivity
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
 				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_LIGHT);
+						getResources().getString(R.string.light_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_LIGHT);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
@@ -158,7 +162,7 @@ public class HistoryMenuActivity extends ActionBarActivity
 				Intent intent = new Intent(getBaseContext(),
 						HistoryPlotActivity.class);
 				intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN,
-						HistoryPlotActivity.INTENT_FROM_MAGNETIC_FIELD);
+						getResources().getString(R.string.magnetic_field_title));
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
 						DbHelper.TABLE_MAGNETIC_FIELD);
 				intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,

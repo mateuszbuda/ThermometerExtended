@@ -43,14 +43,6 @@ public class HistoryPlotActivity extends ActionBarActivity
 	static final String UNIT_LIGHT = "[lx]";
 	static final String UNIT_MAGNETIC_FIELD = "[" + (char) 0x03BC + "T]";
 
-	static final String INTENT_FROM_TEMPERATURE = "Temerature";
-	static final String INTENT_FROM_RELATIVE_HUMIDITY = "Relative Humidity";
-	static final String INTENT_FROM_ABSOLUTE_HUMIDITY = "Absolute Humidity";
-	static final String INTENT_FROM_PRESSURE = "Pressure";
-	static final String INTENT_FROM_DEW_POINT = "Dew Point";
-	static final String INTENT_FROM_LIGHT = "Light";
-	static final String INTENT_FROM_MAGNETIC_FIELD = "Magnetic Field";
-
 	static final String DATE_FORMAT_TODAY = "HH:mm:ss";
 	static final String DATE_FORMAT_OLDER = "d/M/yy";
 
@@ -122,8 +114,8 @@ public class HistoryPlotActivity extends ActionBarActivity
 								"background_color",
 								DataPane.BACKGROUND_DEFAULT_COLOR)));
 		// set appropriate title
-		this.setTitle(getIntent().getExtras().getString(INTENT_ORIGIN)
-				+ " History");
+		this.setTitle(getIntent().getExtras().getString(INTENT_ORIGIN) + " - "
+				+ getResources().getString(R.string.title_activity_history));
 
 		dataSeries = new GraphViewSeries(sensorData.query(getIntent()
 				.getExtras().getString(INTENT_EXTRA_TABLE_NAME)));
