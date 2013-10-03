@@ -1,13 +1,13 @@
 package pl.narfsoftware.thermometer;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 
-public class AboutActivity extends Activity
+public class AboutActivity extends ActionBarActivity
 {
 
 	@Override

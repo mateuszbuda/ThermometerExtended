@@ -5,13 +5,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +24,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
-public class HistoryPlotActivity extends Activity
+public class HistoryPlotActivity extends ActionBarActivity
 {
 	static final String TAG = "HistoryPlotActivity";
 
@@ -63,10 +63,10 @@ public class HistoryPlotActivity extends Activity
 	SensorData sensorData;
 	GraphViewSeries dataSeries;
 
-	static final float TEXT_SIZE = 10f;
+	float textSize;
+	int verticalLabelsWidth;
 	static final int HORIZONTAL_LABELS_COUNT = 4;
 	static final int VERTICAL_LABELS_COUNT = 6;
-	static final int VERTICAL_LABELS_WIDTH = 46;
 
 	private final Handler handler = new Handler();
 	private Runnable timer;
@@ -81,6 +81,10 @@ public class HistoryPlotActivity extends Activity
 		setContentView(R.layout.activity_history_plot);
 		setupActionBar();
 
+		textSize = getResources().getInteger(R.integer.plot_label_text_size);
+		verticalLabelsWidth = getResources().getInteger(
+				R.integer.plot_vertical_labels_widht);
+
 		sensorData = ((ThermometerApp) getApplication()).getSensorData();
 
 		backgroundLayout = (LinearLayout) findViewById(R.id.graph);
@@ -92,13 +96,13 @@ public class HistoryPlotActivity extends Activity
 		graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.BLACK);
 		graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 		graphView.getGraphViewStyle().setGridColor(Color.GRAY);
-		graphView.getGraphViewStyle().setTextSize(TEXT_SIZE);
+		graphView.getGraphViewStyle().setTextSize(textSize);
 		graphView.getGraphViewStyle().setNumHorizontalLabels(
 				HORIZONTAL_LABELS_COUNT);
 		graphView.getGraphViewStyle().setNumVerticalLabels(
 				VERTICAL_LABELS_COUNT);
 		graphView.getGraphViewStyle().setVerticalLabelsWidth(
-				VERTICAL_LABELS_WIDTH);
+				verticalLabelsWidth);
 
 		backgroundLayout = (LinearLayout) findViewById(R.id.graph);
 	}
@@ -175,7 +179,7 @@ public class HistoryPlotActivity extends Activity
 
 			graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 			graphView.getGraphViewStyle().setVerticalLabelsWidth(
-					VERTICAL_LABELS_WIDTH);
+					verticalLabelsWidth);
 
 			graphView.addSeries(dataSeries);
 			graphView.setViewPort(
@@ -217,7 +221,8 @@ public class HistoryPlotActivity extends Activity
 					// set unit
 					tvUnit.setText(getIntent().getExtras().getString(
 							INTENT_EXTRA_UNIT));
-					backgroundLayout.addView(tvUnit);
+					if (tvUnit.getParent() == null)
+						backgroundLayout.addView(tvUnit);
 
 					graphView
 							.setCustomLabelFormatter(new CustomLabelFormatter()
@@ -253,7 +258,7 @@ public class HistoryPlotActivity extends Activity
 					graphView.getGraphViewStyle().setVerticalLabelsColor(
 							Color.BLACK);
 					graphView.getGraphViewStyle().setVerticalLabelsWidth(
-							VERTICAL_LABELS_WIDTH);
+							verticalLabelsWidth);
 
 					graphView.addSeries(dataSeries);
 					graphView

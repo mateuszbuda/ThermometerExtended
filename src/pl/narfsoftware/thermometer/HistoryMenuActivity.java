@@ -3,13 +3,13 @@ package pl.narfsoftware.thermometer;
 import java.lang.reflect.Field;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,7 +19,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class HistoryMenuActivity extends Activity
+public class HistoryMenuActivity extends ActionBarActivity
 {
 	static final String TAG = "HistoryMenuActivity";
 
@@ -42,7 +42,6 @@ public class HistoryMenuActivity extends Activity
 		setContentView(R.layout.activity_history_menu);
 		// Show the Up button in the action bar.
 		setupActionBar();
-		getOverflowMenu();
 
 		historyBackground = (ScrollView) findViewById(R.id.historyBackgroundLayout);
 
@@ -189,6 +188,7 @@ public class HistoryMenuActivity extends Activity
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
 		{
 			getActionBar().setDisplayHomeAsUpEnabled(true);
+			getOverflowMenu();
 		}
 	}
 
