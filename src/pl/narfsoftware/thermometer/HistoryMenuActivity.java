@@ -3,6 +3,10 @@ package pl.narfsoftware.thermometer;
 import java.lang.reflect.Field;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -23,6 +27,8 @@ public class HistoryMenuActivity extends ActionBarActivity
 {
 	static final String TAG = "HistoryMenuActivity";
 
+	Context context;
+
 	ScrollView historyBackground;
 
 	TextView temperatueHistory;
@@ -35,6 +41,8 @@ public class HistoryMenuActivity extends ActionBarActivity
 
 	boolean noData = true;
 
+	private AlertDialog eraseDataDialog;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -42,6 +50,8 @@ public class HistoryMenuActivity extends ActionBarActivity
 		setContentView(R.layout.activity_history_menu);
 		// Show the Up button in the action bar.
 		setupActionBar();
+
+		context = this;
 
 		historyBackground = (ScrollView) findViewById(R.id.historyBackgroundLayout);
 
@@ -221,39 +231,63 @@ public class HistoryMenuActivity extends ActionBarActivity
 			return true;
 
 		case R.id.action_clear_data:
-			if (!PreferenceManager.getDefaultSharedPreferences(this)
-					.getBoolean(
-							getResources().getString(
-									R.string.prefs_save_data_key), true))
-			{
-				if (this.deleteDatabase(DbHelper.DB_NAME))
-				{
-					Toast.makeText(
-							this,
-							getResources().getString(
-									R.string.data_erased_success_toast),
-							Toast.LENGTH_SHORT).show();
-					noData = true;
-				} else if (noData)
-					Toast.makeText(
-							this,
-							getResources().getString(R.string.no_data_to_erase),
-							Toast.LENGTH_SHORT).show();
-				else
-					Toast.makeText(
-							this,
-							getResources().getString(
-									R.string.data_erased_fail_toast),
-							Toast.LENGTH_SHORT).show();
-			} else
-				Toast.makeText(
-						this,
-						getResources().getString(
-								R.string.data_erased_fail_toast)
-								+ "\n"
-								+ getResources().getString(
-										R.string.data_erased_hint_toast),
-						Toast.LENGTH_SHORT).show();
+
+			AlertDialog.Builder builder = new Builder(this);
+			builder.setTitle(R.string.action_clear_data)
+					.setMessage(R.string.alert_dialog_erase_data_text)
+					.setPositiveButton(R.string.yes,
+							new DialogInterface.OnClickListener()
+							{
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which)
+								{
+									if (!PreferenceManager
+											.getDefaultSharedPreferences(
+													context)
+											.getBoolean(
+													getResources()
+															.getString(
+																	R.string.prefs_save_data_key),
+													true))
+									{
+										((ThermometerApp) getApplication())
+												.getSensorData().deleteAll();
+										Toast.makeText(
+												context,
+												getResources()
+														.getString(
+																R.string.data_erased_success_toast),
+												Toast.LENGTH_SHORT).show();
+									} else
+										Toast.makeText(
+												context,
+												getResources()
+														.getString(
+																R.string.data_erased_fail_toast)
+														+ "\n"
+														+ getResources()
+																.getString(
+																		R.string.data_erased_hint_toast),
+												Toast.LENGTH_SHORT).show();
+
+								}
+							})
+					.setNegativeButton(R.string.no,
+							new DialogInterface.OnClickListener()
+							{
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which)
+								{
+									eraseDataDialog.cancel();
+								}
+							});
+
+			eraseDataDialog = builder.create();
+			eraseDataDialog.setCanceledOnTouchOutside(false);
+			eraseDataDialog.show();
 			return true;
 
 		case R.id.action_settings:

@@ -244,5 +244,8 @@
     <string name="about_header">Thermometer Extended</string>
     <string name="about_subheader">version 1.01</string>
     <string name="about_text">We\'re looking forward to hearing from you. Email us to report bugs, suggest an improvement or if you want to add a translation. We will be glad if you decide to rate and comment on our apps on Market.</string>
+    <string name="alert_dialog_erase_data_text">Do you realy want to clear history?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
 </resources>

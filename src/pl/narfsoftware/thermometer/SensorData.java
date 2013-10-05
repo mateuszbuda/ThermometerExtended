@@ -64,6 +64,18 @@ public class SensorData
 		return graphViewData.toArray(new GraphViewData[0]);
 	}
 
+	public void deleteAll()
+	{
+		database = dbHelper.getWritableDatabase();
+		database.delete(DbHelper.TABLE_TEMPERATUE, null, null);
+		database.delete(DbHelper.TABLE_ABSOLUTE_HUMIDITY, null, null);
+		database.delete(DbHelper.TABLE_RELATIVE_HUMIDITY, null, null);
+		database.delete(DbHelper.TABLE_PRESSURE, null, null);
+		database.delete(DbHelper.TABLE_DEW_POINT, null, null);
+		database.delete(DbHelper.TABLE_LIGHT, null, null);
+		database.delete(DbHelper.TABLE_MAGNETIC_FIELD, null, null);
+	}
+
 	public void close()
 	{
 		if (database != null)
