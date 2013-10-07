@@ -141,33 +141,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 			tvUnit.setText(getIntent().getExtras().getString(INTENT_EXTRA_UNIT));
 			backgroundLayout.addView(tvUnit);
 
-			graphView.setCustomLabelFormatter(new CustomLabelFormatter()
-			{
-				@Override
-				public String formatLabel(double value, boolean isValueX)
-				{
-					if (isValueX)
-					{
-						String date;
-						String time;
-
-						long now = new Timestamp(new Date().getTime())
-								.getTime();
-
-						Date d = new Date((long) value);
-
-						date = new SimpleDateFormat(DATE_FORMAT_OLDER)
-								.format(d);
-
-						time = new SimpleDateFormat(DATE_FORMAT_TODAY)
-								.format(d);
-
-						return ((now - ((long) dataSeries.getValues()[0].getX())) < DAY) ? time
-								: date;
-					}
-					return null;
-				}
-			});
+			graphView.setCustomLabelFormatter(label);
 
 			graphView.getGraphViewStyle().setVerticalLabelsColor(Color.BLACK);
 			graphView.getGraphViewStyle().setVerticalLabelsWidth(
@@ -206,46 +180,15 @@ public class HistoryPlotActivity extends ActionBarActivity
 			@Override
 			public void run()
 			{
+				graphView.setCustomLabelFormatter(label);
+
 				if (saveData && dataSeries.getValues().length > 1)
 				{
-					// needs refactoring
-
 					// set unit
 					tvUnit.setText(getIntent().getExtras().getString(
 							INTENT_EXTRA_UNIT));
 					if (tvUnit.getParent() == null)
 						backgroundLayout.addView(tvUnit);
-
-					graphView
-							.setCustomLabelFormatter(new CustomLabelFormatter()
-							{
-								@Override
-								public String formatLabel(double value,
-										boolean isValueX)
-								{
-									if (isValueX)
-									{
-										String date;
-										String time;
-
-										long now = new Timestamp(new Date()
-												.getTime()).getTime();
-
-										Date d = new Date((long) value);
-
-										date = new SimpleDateFormat(
-												DATE_FORMAT_OLDER).format(d);
-
-										time = new SimpleDateFormat(
-												DATE_FORMAT_TODAY).format(d);
-
-										return ((now - ((long) dataSeries
-												.getValues()[0].getX())) < DAY) ? time
-												: date;
-									}
-									return null;
-								}
-							});
 
 					graphView.getGraphViewStyle().setVerticalLabelsColor(
 							Color.BLACK);
@@ -334,4 +277,35 @@ public class HistoryPlotActivity extends ActionBarActivity
 		}
 		return super.onOptionsItemSelected(item);
 	}
+
+	private CustomLabelFormatter label = new CustomLabelFormatter()
+	{
+		@Override
+		public String formatLabel(double value, boolean isValueX)
+		{
+			if (isValueX)
+			{
+				String date;
+				String time;
+
+				long now = new Timestamp(new Date().getTime()).getTime();
+
+				Date d = new Date((long) value);
+
+				date = new SimpleDateFormat(DATE_FORMAT_OLDER).format(d);
+
+				time = new SimpleDateFormat(DATE_FORMAT_TODAY).format(d);
+
+				int length = dataSeries.getValues().length;
+				// return ((((long) dataSeries.getValues()[length - 1].getX()) -
+				// ((long) dataSeries
+				// .getValues()[0].getX())) < DAY) ? time : date;
+				return ((now - ((long) dataSeries.getValues()[0].getX())) < DAY) ? time
+						: date + "\n" + time;
+
+			}
+			return null;
+		}
+	};
+
 }
