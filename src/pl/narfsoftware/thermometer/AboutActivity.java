@@ -1,14 +1,20 @@
 package pl.narfsoftware.thermometer;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 public class AboutActivity extends ActionBarActivity
 {
+	static final String TAG = "AboutActivity";
+	static final String URL_MARKET = "market://details?id=pl.narfsoftware.thermometer";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -17,6 +23,18 @@ public class AboutActivity extends ActionBarActivity
 		setContentView(R.layout.activity_about);
 		// Show the Up button in the action bar.
 		setupActionBar();
+
+		findViewById(R.id.goToMarket).setOnClickListener(new OnClickListener()
+		{
+
+			@Override
+			public void onClick(View v)
+			{
+				Intent intent = new Intent(Intent.ACTION_VIEW);
+				intent.setData(Uri.parse(URL_MARKET));
+				startActivity(intent);
+			}
+		});
 	}
 
 	/**

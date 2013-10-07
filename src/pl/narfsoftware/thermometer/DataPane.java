@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -136,7 +135,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		setContentView(R.layout.activity_data_pane);
 
 		getOverflowMenu();
-		setupActionBar();
 
 		dataPaneBaseLayout = (LinearLayout) findViewById(R.id.dataPaneLayout);
 		backgroundLayout = (ScrollView) findViewById(R.id.backgroundLayout);
@@ -666,17 +664,5 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					+ " K");
 
 		Log.d(TAG, "Dew point updated: " + dewPoint);
-	}
-
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar()
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-		{
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
 	}
 }

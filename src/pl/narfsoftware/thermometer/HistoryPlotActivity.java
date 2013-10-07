@@ -71,7 +71,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_history_plot);
-		setupActionBar();
+		// setupActionBar();
 
 		textSize = getResources().getInteger(R.integer.plot_label_text_size);
 		verticalLabelsWidth = getResources().getInteger(
@@ -296,7 +296,6 @@ public class HistoryPlotActivity extends ActionBarActivity
 
 				time = new SimpleDateFormat(DATE_FORMAT_TODAY).format(d);
 
-				int length = dataSeries.getValues().length;
 				// return ((((long) dataSeries.getValues()[length - 1].getX()) -
 				// ((long) dataSeries
 				// .getValues()[0].getX())) < DAY) ? time : date;

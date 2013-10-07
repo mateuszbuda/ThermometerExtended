@@ -77,8 +77,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:paddingBottom="@dimen/rows_bottom_padding"
             android:text="@string/about_text"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ImageView
+            android:id="@+id/goToMarket"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/logo_description"
+            android:paddingBottom="@dimen/rows_bottom_padding"
+            android:src="@drawable/en_app_rgb_wo_60" />
     </LinearLayout>
 
 </ScrollView>
