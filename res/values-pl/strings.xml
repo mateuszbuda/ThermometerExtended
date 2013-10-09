@@ -232,7 +232,7 @@
     </string-array>
 
     <string name="title_activity_help">Pomoc</string>
-    <string name="help_text">Sensory\nEkran główny wyświtla wybrane w ustawieniach sensory. Jeśli aplikacja odbiera dane z odpowiedniego sensora, są one wyświetlane. W przeciwnym wypadku wyświetla się \"Brak danych\". Dokładność danych zależy od jakości urządzeń. Aplikacja tylko wyświetla otrzymywane dane. Istnieje również taka możliwość, że twoje urządzenie nie posiada wybranego sensora. W takim wypadku wyświtli się wiadomość \"Sensor niedostępny\"\n\nZapis danych\nŻaby móc zobaczyć historię na wykresie musisz najpierw zaznaczyć opcję zapisu danych w ustawieniach. Jadnak musisz być świadom tego, że spowoduje to utrzymywanie sensora aktywnym, nawet jeśli aplikacja będzie zamknięta. Spowoduje to wysokie zuzycie baterii. Pamiętaj więc, żeby zawsze wyłaczyć opcję zapisu danych jeśli nie będziesz już dłużej tego potrzebował. Domyślnie opcja ta jest wyłączona.</string>
+    <string name="help_text">Sensory\nEkran główny wyświtla wybrane w ustawieniach sensory. Jeśli aplikacja odbiera dane z odpowiedniego sensora, są one wyświetlane. W przeciwnym wypadku wyświetla się \"Brak danych\". Dokładność danych zależy od jakości urządzeń. Aplikacja tylko wyświetla otrzymywane dane. Istnieje również taka możliwość, że twoje urządzenie nie posiada wybranego sensora. W takim wypadku wyświtli się wiadomość \"Sensor niedostępny\"\n\nZapis danych\nŻaby móc zobaczyć historię na wykresie musisz najpierw zaznaczyć opcję zapisu danych w ustawieniach. Jadnak musisz być świadom tego, że spowoduje to utrzymywanie sensora aktywnym, nawet jeśli aplikacja będzie zamknięta. W efekcie dorpowadzi to do wysokiego zużycia baterii. Pamiętaj więc, żeby zawsze wyłączyć opcję zapisu danych jeśli nie będziesz już dłużej tego potrzebował. Domyślnie opcja ta jest wyłączona.</string>
     <string name="action_help_title">Pomoc</string>
     <string name="title_activity_about">Informacje</string>
     <string name="about_site_header">Odwiedź naszą stronę</string>
@@ -247,5 +247,35 @@
     <string name="alert_dialog_erase_data_text">Na pewno chcesz usunąć całą historię?</string>
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
+
+    <!-- Label for the "Done" button on the far left of action mode toolbars. -->
+    <string name="abc_action_mode_done">Done</string>
+    <!-- Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] -->
+    <string name="abc_action_bar_home_description">Navigate home</string>
+    <!-- Content description for the action bar "up" affordance. [CHAR LIMIT=NONE] -->
+    <string name="abc_action_bar_up_description">Navigate up</string>
+    <!-- Content description for the action menu overflow button. [CHAR LIMIT=NONE] -->
+    <string name="abc_action_menu_overflow_description">More options</string>
+
+    <!-- SearchView accessibility description for search button [CHAR LIMIT=NONE] -->
+    <string name="abc_searchview_description_search">Search</string>
+    <!-- SearchView accessibility description for search text field [CHAR LIMIT=NONE] -->
+    <string name="abc_searchview_description_query">Search query</string>
+    <!-- SearchView accessibility description for clear button [CHAR LIMIT=NONE] -->
+    <string name="abc_searchview_description_clear">Clear query</string>
+    <!-- SearchView accessibility description for submit button [CHAR LIMIT=NONE] -->
+    <string name="abc_searchview_description_submit">Submit query</string>
+    <!-- SearchView accessibility description for voice button [CHAR LIMIT=NONE] -->
+    <string name="abc_searchview_description_voice">Voice search</string>
+
+    <!-- ActivityChooserView - accessibility support -->
+    <!-- Description of the shwoing of a popup window with activities to choose from. [CHAR LIMIT=NONE] -->
+    <string name="abc_activitychooserview_choose_application">Choose an app</string>
+    <!-- Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] -->
+    <string name="abc_activity_chooser_view_see_all">See all</string>
+    <!-- Description of a share target (both in the list of such or the default share button) in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+    <string name="abc_shareactionprovider_share_with_application">Share with %s</string>
+    <!-- Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] -->
+    <string name="abc_shareactionprovider_share_with">Share with</string>
 
 </resources>
