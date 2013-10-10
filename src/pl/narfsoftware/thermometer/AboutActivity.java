@@ -26,7 +26,6 @@ public class AboutActivity extends ActionBarActivity
 
 		findViewById(R.id.goToMarket).setOnClickListener(new OnClickListener()
 		{
-
 			@Override
 			public void onClick(View v)
 			{

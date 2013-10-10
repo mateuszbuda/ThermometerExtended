@@ -3,7 +3,6 @@ package pl.narfsoftware.thermometer;
 import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import android.content.BroadcastReceiver;
@@ -141,93 +140,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-		// checking sensors availability
-		List<Sensor> deviceSensors = sensorManager
-				.getSensorList(Sensor.TYPE_ALL);
-
-		for (Sensor sensor : deviceSensors)
-		{
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-					&& sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE)
-				hasTempratureSensor = true;
-
-			else if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH
-					&& sensor.getType() == Sensor.TYPE_TEMPERATURE)
-				hasTempratureSensor = true;
-
-			else if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-					&& sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY)
-				hasRelativeHumiditySensor = true;
-
-			else if (sensor.getType() == Sensor.TYPE_PRESSURE)
-				hasPressureSensor = true;
-
-			else if (sensor.getType() == Sensor.TYPE_LIGHT)
-				hasLightSensor = true;
-
-			else if (sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-				hasMagneticFieldSensor = true;
-		}
-
-		// get sensors
-		if (hasTempratureSensor)
-		{
-			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-				sensors[S_TEMPRATURE] = sensorManager
-						.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-			else
-				sensors[S_TEMPRATURE] = sensorManager
-						.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
-		}
-
-		if (hasRelativeHumiditySensor
-				&& android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-			sensors[S_RELATIVE_HUMIDITY] = sensorManager
-					.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-
-		if (hasPressureSensor)
-			sensors[S_PRESSURE] = sensorManager
-					.getDefaultSensor(Sensor.TYPE_PRESSURE);
-
-		if (hasLightSensor)
-			sensors[S_LIGHT] = sensorManager
-					.getDefaultSensor(Sensor.TYPE_LIGHT);
-
-		if (hasMagneticFieldSensor)
-			sensors[S_MAGNETIC_FIELD] = sensorManager
-					.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
-		// initialize TextViews
-		initializeTextViewSensor(tvTemprature = new TextView(this),
-				hasTempratureSensor);
-		initializeTextViewSensor(tvRelativeHumidity = new TextView(this),
-				hasRelativeHumiditySensor);
-		initializeTextViewSensor(tvAbsoluteHumidity = new TextView(this),
-				hasTempratureSensor && hasRelativeHumiditySensor);
-		initializeTextViewSensor(tvPressure = new TextView(this),
-				hasPressureSensor);
-		initializeTextViewSensor(tvDewPoint = new TextView(this),
-				hasTempratureSensor && hasRelativeHumiditySensor);
-		initializeTextViewSensor(tvLight = new TextView(this), hasLightSensor);
-		initializeTextViewSensor(tvMagneticField = new TextView(this),
-				hasMagneticFieldSensor);
-
-		// date and time initialization
-		date = new TextView(this);
-		time = new TextView(this);
+		getSensors();
 
 		Log.d(TAG, "onCreated");
-	}
-
-	private void initializeTextViewSensor(TextView tvSensor, boolean hasSensor)
-	{
-		tvSensor.setGravity(Gravity.CENTER);
-		tvSensor.setTextAppearance(this, android.R.style.TextAppearance_Large);
-		if (!hasSensor)
-			tvSensor.setText(getResources().getString(
-					R.string.sensor_unavailable));
-		else
-			tvSensor.setText(getResources().getString(R.string.sensor_no_data));
 	}
 
 	@Override
@@ -261,212 +176,25 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		super.onResume();
 
-		// get current preferences
-		preferences = ((ThermometerApp) getApplication()).preferences;
-		// set background color
-		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
-				.getString(
-						getResources().getString(
-								R.string.prefs_background_color_key),
-						BACKGROUND_DEFAULT_COLOR)));
-		// set temperature unit
-		temperatureUnit = preferences.getString(
-				getResources().getString(R.string.prefs_temp_unit_key),
-				getResources().getStringArray(R.array.prefs_temp_unit_vals)[0]);
-		// set date and time format
-		dateFormat = preferences.getString(
-				getResources().getString(R.string.prefs_date_format_key),
-				DEFAULT_DATE_FORMAT);
-		timeFormat = preferences.getString(
-				getResources().getString(R.string.prefs_time_format_key),
-				DEFAULT_TIME_FORMAT);
+		customize();
 
-		// get from preferences which sensors to show
-		showTemprature = preferences.getBoolean(
-				getResources().getString(R.string.ambient_temp_key), true);
-		showRelativeHumidity = preferences.getBoolean(
-				getResources().getString(R.string.relative_humidity_key), true);
-		showAbsoluteHumidity = preferences
-				.getBoolean(
-						getResources()
-								.getString(R.string.absolute_humidity_key),
-						false);
-		showPressure = preferences.getBoolean(
-				getResources().getString(R.string.pressure_key), true);
-		showDewPoint = preferences.getBoolean(
-				getResources().getString(R.string.dew_point_key), false);
-		showLight = preferences.getBoolean(
-				getResources().getString(R.string.light_key), false);
-		showMagneticField = preferences.getBoolean(
-				getResources().getString(R.string.magnetic_field_key), false);
+		setShowSensors();
+
+		initTextViews();
 
 		sensorManager.unregisterListener(this);
 		Log.d(TAG, "Sensors unregistered");
 
-		// register chosen sensors
-		if (hasTempratureSensor
-				&& (showTemprature || showAbsoluteHumidity || showDewPoint))
-		{
-			sensorManager.registerListener(this, sensors[S_TEMPRATURE],
-					SensorManager.SENSOR_DELAY_UI);
-			Log.d(TAG, "Temperature sensor registered");
-		}
-		if (hasRelativeHumiditySensor
-				&& (showRelativeHumidity || showAbsoluteHumidity || showDewPoint))
-		{
-			sensorManager.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
-					SensorManager.SENSOR_DELAY_UI);
-			Log.d(TAG, "Relative humidity sensor registered");
-		}
-		if (hasPressureSensor && showPressure)
-		{
-			sensorManager.registerListener(this, sensors[S_PRESSURE],
-					SensorManager.SENSOR_DELAY_UI);
-			Log.d(TAG, "Pressure sensor registered");
-		}
-		if (hasLightSensor && showLight)
-		{
-			sensorManager.registerListener(this, sensors[S_LIGHT],
-					SensorManager.SENSOR_DELAY_UI);
-			Log.d(TAG, "Light sensor registered");
-		}
-		if (hasMagneticFieldSensor && showMagneticField)
-		{
-			sensorManager.registerListener(this, sensors[S_MAGNETIC_FIELD],
-					SensorManager.SENSOR_DELAY_UI);
-			Log.d(TAG, "Magnetic field sensor registered");
-		}
+		registerChosenSensors();
 
-		// clear base layout
 		dataPaneBaseLayout.removeAllViews();
 
-		// remove TextViews parents
-		if (tvTemprature.getParent() != null)
-			((LinearLayout) tvTemprature.getParent()).removeView(tvTemprature);
-		if (tvRelativeHumidity.getParent() != null)
-			((LinearLayout) tvRelativeHumidity.getParent())
-					.removeView(tvRelativeHumidity);
-		if (tvAbsoluteHumidity.getParent() != null)
-			((LinearLayout) tvAbsoluteHumidity.getParent())
-					.removeView(tvAbsoluteHumidity);
-		if (tvPressure.getParent() != null)
-			((LinearLayout) tvPressure.getParent()).removeView(tvPressure);
-		if (tvDewPoint.getParent() != null)
-			((LinearLayout) tvDewPoint.getParent()).removeView(tvDewPoint);
-		if (tvLight.getParent() != null)
-			((LinearLayout) tvLight.getParent()).removeView(tvLight);
-		if (tvMagneticField.getParent() != null)
-			((LinearLayout) tvMagneticField.getParent())
-					.removeView(tvMagneticField);
-
-		// add date and time
-		Calendar calendar = Calendar.getInstance(Locale.getDefault());
-		calendar.setTimeInMillis(new Date().getTime());
-
-		date.setText(DateFormat.format(dateFormat, calendar));
-		time.setText(DateFormat.format(timeFormat, calendar));
+		removeTextViewsParent();
 
 		addDateAndTimeRow();
 
-		// add chosen children to base layout
-		if (showTemprature)
-			addSensorDataRow(R.drawable.temprature,
-					R.string.ambient_temp_title, tvTemprature);
+		addChosenSensorsTextView();
 
-		if (showRelativeHumidity)
-			addSensorDataRow(R.drawable.relative_humidity,
-					R.string.relative_humidity_title, tvRelativeHumidity);
-
-		if (showAbsoluteHumidity)
-			addSensorDataRow(R.drawable.absolute_humidity,
-					R.string.absolute_humidity_title, tvAbsoluteHumidity);
-
-		if (showPressure)
-			addSensorDataRow(R.drawable.pressure, R.string.pressure_title,
-					tvPressure);
-
-		if (showDewPoint)
-			addSensorDataRow(R.drawable.dew_point, R.string.dew_point_title,
-					tvDewPoint);
-
-		if (showLight)
-			addSensorDataRow(R.drawable.light, R.string.light_title, tvLight);
-
-		if (showMagneticField)
-			addSensorDataRow(R.drawable.magnetic_field,
-					R.string.magnetic_field_title, tvMagneticField);
-
-	}
-
-	private void addSensorDataRow(int iconResId, int titleResId,
-			TextView tvSensor)
-	{
-		sensorDataRow = new LinearLayout(this);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		sensorDataRow.setLayoutParams(params);
-		sensorDataRow.setOrientation(LinearLayout.HORIZONTAL);
-		sensorDataRow.setPadding(DATA_ROW_PADDING_LEFT, DATA_ROW_PADDING_TOP,
-				DATA_ROW_PADDING_RIGHT, DATA_ROW_PADDING_BOTTOM);
-		sensorDataRow.setGravity(Gravity.CENTER);
-
-		sensorIcon = new ImageView(this);
-		sensorIcon.setImageResource(iconResId);
-
-		sensorDataRowText = new LinearLayout(this);
-		sensorDataRowText.setOrientation(LinearLayout.VERTICAL);
-		sensorDataRowText.setLayoutParams(params);
-
-		sensorHeader = new TextView(this);
-		sensorHeader.setText(titleResId);
-		sensorHeader.setGravity(Gravity.CENTER);
-		sensorHeader.setTextAppearance(this,
-				android.R.style.TextAppearance_Large);
-
-		sensorDataRow.addView(sensorIcon);
-		sensorDataRowText.addView(sensorHeader);
-		sensorDataRowText.addView(tvSensor);
-		sensorDataRow.addView(sensorDataRowText);
-
-		dataPaneBaseLayout.addView(sensorDataRow);
-
-		// dividing line
-		dividingLine = new View(this);
-		dividingLine.setLayoutParams(new TableRow.LayoutParams(
-				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
-		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
-
-		dataPaneBaseLayout.addView(dividingLine);
-	}
-
-	private void addDateAndTimeRow()
-	{
-		dateAndTimeRow = new LinearLayout(this);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		dateAndTimeRow.setLayoutParams(params);
-		dateAndTimeRow.setOrientation(LinearLayout.VERTICAL);
-		dateAndTimeRow.setPadding(DATE_TIME_ROW_PADDING_LEFT,
-				DATE_TIME_ROW_PADDING_TOP, DATE_TIME_ROW_PADDING_RIGHT,
-				DATE_TIME_ROW_PADDING_BOTTOM);
-		dateAndTimeRow.setGravity(Gravity.CENTER);
-
-		if (!dateFormat.equals(""))
-			dateAndTimeRow.addView(date);
-		if (!timeFormat.equals(""))
-			dateAndTimeRow.addView(time);
-
-		dataPaneBaseLayout.addView(dateAndTimeRow);
-
-		// dividing line
-		dividingLine = new View(this);
-		dividingLine.setLayoutParams(new TableRow.LayoutParams(
-				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
-		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
-
-		dataPaneBaseLayout.addView(dividingLine);
-
-		Log.d(TAG, "Date and time row added");
 	}
 
 	@Override
@@ -491,6 +219,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			((LinearLayout) date.getParent()).removeView(date);
 		if (time.getParent() != null)
 			((LinearLayout) time.getParent()).removeView(time);
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+
+		sensorManager.unregisterListener(this);
 	}
 
 	@Override
@@ -554,6 +290,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
+		// TODO Create classes - each one to listen to its own sensor change
 		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE]))
 		{
 			temperature = event.values[0];
@@ -664,5 +401,309 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					+ " K");
 
 		Log.d(TAG, "Dew point updated: " + dewPoint);
+	}
+
+	private void getSensors()
+	{
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			sensors[S_TEMPRATURE] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+		else
+			sensors[S_TEMPRATURE] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
+
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+			sensors[S_RELATIVE_HUMIDITY] = sensorManager
+					.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+
+		sensors[S_PRESSURE] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_PRESSURE);
+
+		sensors[S_LIGHT] = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+		sensors[S_MAGNETIC_FIELD] = sensorManager
+				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+	}
+
+	private void initTextViews()
+	{
+		// initialize TextViews
+		initializeTextViewSensor(tvTemprature = new TextView(this),
+				hasTempratureSensor);
+		initializeTextViewSensor(tvRelativeHumidity = new TextView(this),
+				hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvAbsoluteHumidity = new TextView(this),
+				hasTempratureSensor && hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvPressure = new TextView(this),
+				hasPressureSensor);
+		initializeTextViewSensor(tvDewPoint = new TextView(this),
+				hasTempratureSensor && hasRelativeHumiditySensor);
+		initializeTextViewSensor(tvLight = new TextView(this), hasLightSensor);
+		initializeTextViewSensor(tvMagneticField = new TextView(this),
+				hasMagneticFieldSensor);
+
+		// date and time initialization
+		date = new TextView(this);
+		time = new TextView(this);
+	}
+
+	private void initializeTextViewSensor(TextView tvSensor, boolean hasSensor)
+	{
+		tvSensor.setGravity(Gravity.CENTER);
+		tvSensor.setTextAppearance(this, android.R.style.TextAppearance_Large);
+		if (!hasSensor)
+			tvSensor.setText(getResources().getString(
+					R.string.sensor_unavailable));
+		else
+			tvSensor.setText(getResources().getString(R.string.sensor_no_data));
+	}
+
+	private void customize()
+	{
+		// get current preferences
+		preferences = ((ThermometerApp) getApplication()).preferences;
+
+		// set background color
+		backgroundLayout.setBackgroundColor(Color.parseColor(preferences
+				.getString(
+						getResources().getString(
+								R.string.prefs_background_color_key),
+						BACKGROUND_DEFAULT_COLOR)));
+
+		// set temperature unit
+		temperatureUnit = preferences.getString(
+				getResources().getString(R.string.prefs_temp_unit_key),
+				getResources().getStringArray(R.array.prefs_temp_unit_vals)[0]);
+
+		// set date and time format
+		dateFormat = preferences.getString(
+				getResources().getString(R.string.prefs_date_format_key),
+				DEFAULT_DATE_FORMAT);
+		timeFormat = preferences.getString(
+				getResources().getString(R.string.prefs_time_format_key),
+				DEFAULT_TIME_FORMAT);
+	}
+
+	private void setShowSensors()
+	{
+		// get current preferences
+		preferences = ((ThermometerApp) getApplication()).preferences;
+
+		// get from preferences which sensors to show
+		showTemprature = preferences.getBoolean(
+				getResources().getString(R.string.ambient_temp_key), true);
+		showRelativeHumidity = preferences.getBoolean(
+				getResources().getString(R.string.relative_humidity_key), true);
+		showAbsoluteHumidity = preferences
+				.getBoolean(
+						getResources()
+								.getString(R.string.absolute_humidity_key),
+						false);
+		showPressure = preferences.getBoolean(
+				getResources().getString(R.string.pressure_key), true);
+		showDewPoint = preferences.getBoolean(
+				getResources().getString(R.string.dew_point_key), false);
+		showLight = preferences.getBoolean(
+				getResources().getString(R.string.light_key), false);
+		showMagneticField = preferences.getBoolean(
+				getResources().getString(R.string.magnetic_field_key), false);
+	}
+
+	private void registerChosenSensors()
+	{
+		// TODO Register sensors to their own listener
+		if (showTemprature || showAbsoluteHumidity || showDewPoint)
+		{
+			try
+			{
+				hasTempratureSensor = sensorManager.registerListener(this,
+						sensors[S_TEMPRATURE], SensorManager.SENSOR_DELAY_UI) ? true
+						: false;
+				Log.d(TAG, "Temperature sensor registered");
+			} catch (Exception e)
+			{
+				hasTempratureSensor = false;
+			}
+		}
+		if (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)
+		{
+			try
+			{
+				hasRelativeHumiditySensor = sensorManager.registerListener(
+						this, sensors[S_RELATIVE_HUMIDITY],
+						SensorManager.SENSOR_DELAY_UI) ? true : false;
+				Log.d(TAG, "Relative humidity sensor registered");
+			} catch (Exception e)
+			{
+				hasRelativeHumiditySensor = false;
+			}
+		}
+		if (showPressure)
+		{
+			try
+			{
+				hasPressureSensor = sensorManager.registerListener(this,
+						sensors[S_PRESSURE], SensorManager.SENSOR_DELAY_UI) ? true
+						: false;
+				Log.d(TAG, "Pressure sensor registered");
+			} catch (Exception e)
+			{
+				hasPressureSensor = false;
+			}
+		}
+		if (showLight)
+		{
+			try
+			{
+				hasLightSensor = sensorManager.registerListener(this,
+						sensors[S_LIGHT], SensorManager.SENSOR_DELAY_UI) ? true
+						: false;
+				Log.d(TAG, "Light sensor registered");
+			} catch (Exception e)
+			{
+				hasLightSensor = false;
+			}
+		}
+		if (showMagneticField)
+		{
+			try
+			{
+				hasMagneticFieldSensor = sensorManager.registerListener(this,
+						sensors[S_MAGNETIC_FIELD],
+						SensorManager.SENSOR_DELAY_UI) ? true : false;
+				Log.d(TAG, "Magnetic field sensor registered");
+			} catch (Exception e)
+			{
+				hasMagneticFieldSensor = false;
+			}
+		}
+	}
+
+	private void removeTextViewsParent()
+	{
+		// remove TextViews parents
+		if (tvTemprature.getParent() != null)
+			((LinearLayout) tvTemprature.getParent()).removeView(tvTemprature);
+		if (tvRelativeHumidity.getParent() != null)
+			((LinearLayout) tvRelativeHumidity.getParent())
+					.removeView(tvRelativeHumidity);
+		if (tvAbsoluteHumidity.getParent() != null)
+			((LinearLayout) tvAbsoluteHumidity.getParent())
+					.removeView(tvAbsoluteHumidity);
+		if (tvPressure.getParent() != null)
+			((LinearLayout) tvPressure.getParent()).removeView(tvPressure);
+		if (tvDewPoint.getParent() != null)
+			((LinearLayout) tvDewPoint.getParent()).removeView(tvDewPoint);
+		if (tvLight.getParent() != null)
+			((LinearLayout) tvLight.getParent()).removeView(tvLight);
+		if (tvMagneticField.getParent() != null)
+			((LinearLayout) tvMagneticField.getParent())
+					.removeView(tvMagneticField);
+	}
+
+	private void addChosenSensorsTextView()
+	{
+		if (showTemprature)
+			addSensorDataRow(R.drawable.temprature,
+					R.string.ambient_temp_title, tvTemprature);
+
+		if (showRelativeHumidity)
+			addSensorDataRow(R.drawable.relative_humidity,
+					R.string.relative_humidity_title, tvRelativeHumidity);
+
+		if (showAbsoluteHumidity)
+			addSensorDataRow(R.drawable.absolute_humidity,
+					R.string.absolute_humidity_title, tvAbsoluteHumidity);
+
+		if (showPressure)
+			addSensorDataRow(R.drawable.pressure, R.string.pressure_title,
+					tvPressure);
+
+		if (showDewPoint)
+			addSensorDataRow(R.drawable.dew_point, R.string.dew_point_title,
+					tvDewPoint);
+
+		if (showLight)
+			addSensorDataRow(R.drawable.light, R.string.light_title, tvLight);
+
+		if (showMagneticField)
+			addSensorDataRow(R.drawable.magnetic_field,
+					R.string.magnetic_field_title, tvMagneticField);
+
+	}
+
+	private void addSensorDataRow(int iconResId, int titleResId,
+			TextView tvSensor)
+	{
+		sensorDataRow = new LinearLayout(this);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		sensorDataRow.setLayoutParams(params);
+		sensorDataRow.setOrientation(LinearLayout.HORIZONTAL);
+		sensorDataRow.setPadding(DATA_ROW_PADDING_LEFT, DATA_ROW_PADDING_TOP,
+				DATA_ROW_PADDING_RIGHT, DATA_ROW_PADDING_BOTTOM);
+		sensorDataRow.setGravity(Gravity.CENTER);
+
+		sensorIcon = new ImageView(this);
+		sensorIcon.setImageResource(iconResId);
+
+		sensorDataRowText = new LinearLayout(this);
+		sensorDataRowText.setOrientation(LinearLayout.VERTICAL);
+		sensorDataRowText.setLayoutParams(params);
+
+		sensorHeader = new TextView(this);
+		sensorHeader.setText(titleResId);
+		sensorHeader.setGravity(Gravity.CENTER);
+		sensorHeader.setTextAppearance(this,
+				android.R.style.TextAppearance_Large);
+
+		sensorDataRow.addView(sensorIcon);
+		sensorDataRowText.addView(sensorHeader);
+		sensorDataRowText.addView(tvSensor);
+		sensorDataRow.addView(sensorDataRowText);
+
+		dataPaneBaseLayout.addView(sensorDataRow);
+
+		dividingLine = new View(this);
+		dividingLine.setLayoutParams(new TableRow.LayoutParams(
+				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
+		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
+
+		dataPaneBaseLayout.addView(dividingLine);
+	}
+
+	private void addDateAndTimeRow()
+	{
+		Calendar calendar = Calendar.getInstance(Locale.getDefault());
+		calendar.setTimeInMillis(new Date().getTime());
+
+		date.setText(DateFormat.format(dateFormat, calendar));
+		time.setText(DateFormat.format(timeFormat, calendar));
+
+		dateAndTimeRow = new LinearLayout(this);
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		dateAndTimeRow.setLayoutParams(params);
+		dateAndTimeRow.setOrientation(LinearLayout.VERTICAL);
+		dateAndTimeRow.setPadding(DATE_TIME_ROW_PADDING_LEFT,
+				DATE_TIME_ROW_PADDING_TOP, DATE_TIME_ROW_PADDING_RIGHT,
+				DATE_TIME_ROW_PADDING_BOTTOM);
+		dateAndTimeRow.setGravity(Gravity.CENTER);
+
+		if (!dateFormat.equals(""))
+			dateAndTimeRow.addView(date);
+		if (!timeFormat.equals(""))
+			dateAndTimeRow.addView(time);
+
+		dataPaneBaseLayout.addView(dateAndTimeRow);
+
+		dividingLine = new View(this);
+		dividingLine.setLayoutParams(new TableRow.LayoutParams(
+				TableRow.LayoutParams.FILL_PARENT, DIV_LINE_HEIGHT));
+		dividingLine.setBackgroundColor(Color.parseColor(DIV_LINE_HEX_COLOR));
+
+		dataPaneBaseLayout.addView(dividingLine);
+
+		Log.d(TAG, "Date and time row added");
 	}
 }
