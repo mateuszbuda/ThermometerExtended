@@ -20,15 +20,6 @@
         android:order="95"
         android:title="@string/prefs_background_color_title" />
 
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:icon="@android:drawable/ic_menu_save"
-        android:key="@string/prefs_save_data_key"
-        android:order="92"
-        android:summaryOff="@string/prefs_save_data_summary_off"
-        android:summaryOn="@string/prefs_save_data_summary_on"
-        android:title="@string/prefs_save_data_title" />
-
     <ListPreference
         android:defaultValue="EEEE, dd MMMM"
         android:dialogTitle="@string/prefs_date_format_title"

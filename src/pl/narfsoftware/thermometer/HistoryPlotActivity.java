@@ -24,6 +24,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
+// TODO needs refactoring
 public class HistoryPlotActivity extends ActionBarActivity
 {
 	static final String TAG = "HistoryPlotActivity";
@@ -71,7 +72,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_history_plot);
-		// setupActionBar();
+		setupActionBar();
 
 		textSize = getResources().getInteger(R.integer.plot_label_text_size);
 		verticalLabelsWidth = getResources().getInteger(
@@ -102,10 +103,27 @@ public class HistoryPlotActivity extends ActionBarActivity
 	@Override
 	protected void onResume()
 	{
+		// TODO needs refactoring
 		super.onResume();
 
-		saveData = ((ThermometerApp) getApplication()).preferences.getBoolean(
-				getResources().getString(R.string.prefs_save_data_key), false);
+		saveData = false;
+		ThermometerApp app = ((ThermometerApp) getApplication());
+		String tableName = getIntent().getExtras().getString(
+				INTENT_EXTRA_TABLE_NAME);
+		if (tableName.equals(DbHelper.TABLE_TEMPERATUE))
+			saveData = app.saveTemperature;
+		else if (tableName.equals(DbHelper.TABLE_RELATIVE_HUMIDITY))
+			saveData = app.saveRelativeHumidity;
+		else if (tableName.equals(DbHelper.TABLE_ABSOLUTE_HUMIDITY))
+			saveData = app.saveAbsoluteHumidity;
+		else if (tableName.equals(DbHelper.TABLE_PRESSURE))
+			saveData = app.savePressure;
+		else if (tableName.equals(DbHelper.TABLE_DEW_POINT))
+			saveData = app.saveDewPoint;
+		else if (tableName.equals(DbHelper.TABLE_LIGHT))
+			saveData = app.saveLight;
+		else if (tableName.equals(DbHelper.TABLE_MAGNETIC_FIELD))
+			saveData = app.saveMagneticField;
 
 		// set background color
 		backgroundLayout
@@ -180,8 +198,6 @@ public class HistoryPlotActivity extends ActionBarActivity
 			@Override
 			public void run()
 			{
-				graphView.setCustomLabelFormatter(label);
-
 				if (saveData && dataSeries.getValues().length > 1)
 				{
 					// set unit
@@ -203,6 +219,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 											.getValues().length - 1].getX()
 											- dataSeries.getValues()[0].getX());
 					graphView.setScalable(true);
+					graphView.setCustomLabelFormatter(label);
 				} else
 					handler.postDelayed(this, ONE_SECOND);
 			}
@@ -296,9 +313,6 @@ public class HistoryPlotActivity extends ActionBarActivity
 
 				time = new SimpleDateFormat(DATE_FORMAT_TODAY).format(d);
 
-				// return ((((long) dataSeries.getValues()[length - 1].getX()) -
-				// ((long) dataSeries
-				// .getValues()[0].getX())) < DAY) ? time : date;
 				return ((now - ((long) dataSeries.getValues()[0].getX())) < DAY) ? time
 						: date + "\n" + time;
 

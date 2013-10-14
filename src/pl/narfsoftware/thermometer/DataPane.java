@@ -5,8 +5,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -25,6 +28,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,12 +36,14 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 @SuppressWarnings("deprecation")
 public class DataPane extends ActionBarActivity implements SensorEventListener
 {
 	static final String TAG = "DataPane";
 
+	Context context;
 	SharedPreferences preferences;
 
 	LinearLayout dataPaneBaseLayout;
@@ -127,12 +133,15 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	BroadcastReceiver minuteChangeReceiver;
 
+	private AlertDialog eraseDataDialog;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data_pane);
 
+		context = this;
 		getOverflowMenu();
 
 		dataPaneBaseLayout = (LinearLayout) findViewById(R.id.dataPaneLayout);
@@ -242,10 +251,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	{
 		switch (item.getItemId())
 		{
-		case R.id.action_history:
-			startActivity(new Intent(this, HistoryMenuActivity.class));
-			return true;
-
 		case R.id.action_settings:
 			startActivity(new Intent(this, SettingsActivity.class));
 			return true;
@@ -256,6 +261,44 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		case R.id.action_about:
 			startActivity(new Intent(this, AboutActivity.class));
+			return true;
+
+		case R.id.action_clear_data:
+			AlertDialog.Builder builder = new Builder(this);
+			builder.setTitle(R.string.action_clear_data)
+					.setMessage(R.string.alert_dialog_erase_data_text)
+					.setPositiveButton(R.string.yes,
+							new DialogInterface.OnClickListener()
+							{
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which)
+								{
+									((ThermometerApp) getApplication())
+											.getSensorData().deleteAll();
+									Toast.makeText(
+											context,
+											getResources()
+													.getString(
+															R.string.data_erased_success_toast),
+											Toast.LENGTH_SHORT).show();
+								}
+							})
+					.setNegativeButton(R.string.no,
+							new DialogInterface.OnClickListener()
+							{
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which)
+								{
+									eraseDataDialog.cancel();
+								}
+							});
+
+			eraseDataDialog = builder.create();
+			eraseDataDialog.setCanceledOnTouchOutside(false);
+			eraseDataDialog.show();
 			return true;
 
 		default:
@@ -492,6 +535,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		// get from preferences which sensors to show
 		showTemprature = preferences.getBoolean(
 				getResources().getString(R.string.ambient_temp_key), true);
+
 		showRelativeHumidity = preferences.getBoolean(
 				getResources().getString(R.string.relative_humidity_key), true);
 		showAbsoluteHumidity = preferences
@@ -604,36 +648,63 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	private void addChosenSensorsTextView()
 	{
 		if (showTemprature)
-			addSensorDataRow(R.drawable.temprature,
-					R.string.ambient_temp_title, tvTemprature);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveTemperature ? R.drawable.temprature
+							: R.drawable.temprature_disabled,
+					R.string.ambient_temp_title, tvTemprature,
+					temperatureIconOnClickListener,
+					temperatueHistoryOnClickListener);
 
 		if (showRelativeHumidity)
-			addSensorDataRow(R.drawable.relative_humidity,
-					R.string.relative_humidity_title, tvRelativeHumidity);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveRelativeHumidity ? R.drawable.relative_humidity
+							: R.drawable.relative_humidity_disabled,
+					R.string.relative_humidity_title, tvRelativeHumidity,
+					relativeHumidityIconOnClickListener,
+					relativeHumidityHistoryOnClickListener);
 
 		if (showAbsoluteHumidity)
-			addSensorDataRow(R.drawable.absolute_humidity,
-					R.string.absolute_humidity_title, tvAbsoluteHumidity);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveAbsoluteHumidity ? R.drawable.absolute_humidity
+							: R.drawable.absolute_humidity_disabled,
+					R.string.absolute_humidity_title, tvAbsoluteHumidity,
+					absoluteHumidityIconOnClickListener,
+					absoluteHumidityHistoryOnClickListener);
 
 		if (showPressure)
-			addSensorDataRow(R.drawable.pressure, R.string.pressure_title,
-					tvPressure);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).savePressure ? R.drawable.pressure
+							: R.drawable.pressure_disabled,
+					R.string.pressure_title, tvPressure,
+					pressureIconOnClickListener, pressureHistoryOnClickListener);
 
 		if (showDewPoint)
-			addSensorDataRow(R.drawable.dew_point, R.string.dew_point_title,
-					tvDewPoint);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveDewPoint ? R.drawable.dew_point
+							: R.drawable.dew_point_disabled,
+					R.string.dew_point_title, tvDewPoint,
+					dewPointIconOnClickListener, dewPointHistoryOnClickListener);
 
 		if (showLight)
-			addSensorDataRow(R.drawable.light, R.string.light_title, tvLight);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveLight ? R.drawable.light
+							: R.drawable.light_disabled, R.string.light_title,
+					tvLight, lightIconOnClickListener,
+					lightHistoryOnClickListener);
 
 		if (showMagneticField)
-			addSensorDataRow(R.drawable.magnetic_field,
-					R.string.magnetic_field_title, tvMagneticField);
+			addSensorDataRow(
+					((ThermometerApp) getApplication()).saveMagneticField ? R.drawable.magnetic_field
+							: R.drawable.magnetic_field_disabled,
+					R.string.magnetic_field_title, tvMagneticField,
+					magneticFieldIconOnClickListener,
+					magneticFieldHistoryOnClickListener);
 
 	}
 
 	private void addSensorDataRow(int iconResId, int titleResId,
-			TextView tvSensor)
+			TextView tvSensor, OnClickListener iconOnClickListener,
+			OnClickListener textOnClickListener)
 	{
 		sensorDataRow = new LinearLayout(this);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -646,10 +717,12 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		sensorIcon = new ImageView(this);
 		sensorIcon.setImageResource(iconResId);
+		sensorIcon.setOnClickListener(iconOnClickListener);
 
 		sensorDataRowText = new LinearLayout(this);
 		sensorDataRowText.setOrientation(LinearLayout.VERTICAL);
 		sensorDataRowText.setLayoutParams(params);
+		sensorDataRowText.setOnClickListener(textOnClickListener);
 
 		sensorHeader = new TextView(this);
 		sensorHeader.setText(titleResId);
@@ -706,4 +779,250 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		Log.d(TAG, "Date and time row added");
 	}
+
+	private boolean sensorOnClickListener(ImageView sensorIcon,
+			boolean saveSensorBeforeClicked, int disabledIconResId,
+			int iconResId, int toastOffResId, int toastOnResId)
+	{
+		sensorIcon.setImageResource(saveSensorBeforeClicked ? disabledIconResId
+				: iconResId);
+		Toast.makeText(getApplicationContext(),
+				saveSensorBeforeClicked ? toastOffResId : toastOnResId,
+				Toast.LENGTH_SHORT).show();
+		return !saveSensorBeforeClicked;
+	}
+
+	private OnClickListener temperatureIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveTemperature = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveTemperature,
+					R.drawable.temprature_disabled, R.drawable.temprature,
+					R.string.toast_off_temperature_save_data,
+					R.string.toast_on_temperature_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener relativeHumidityIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveRelativeHumidity = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveRelativeHumidity,
+					R.drawable.relative_humidity_disabled,
+					R.drawable.relative_humidity,
+					R.string.toast_off_relative_humidity_save_data,
+					R.string.toast_on_relative_humidity_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener absoluteHumidityIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveAbsoluteHumidity = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveAbsoluteHumidity,
+					R.drawable.absolute_humidity_disabled,
+					R.drawable.absolute_humidity,
+					R.string.toast_off_absolute_humidity_save_data,
+					R.string.toast_on_absolute_humidity_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener pressureIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).savePressure = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).savePressure,
+					R.drawable.pressure_disabled, R.drawable.pressure,
+					R.string.toast_off_pressure_save_data,
+					R.string.toast_on_pressure_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener dewPointIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveDewPoint = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveDewPoint,
+					R.drawable.dew_point_disabled, R.drawable.dew_point,
+					R.string.toast_off_dew_point_save_data,
+					R.string.toast_on_dew_point_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener lightIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveLight = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveLight,
+					R.drawable.light_disabled, R.drawable.light,
+					R.string.toast_off_light_save_data,
+					R.string.toast_on_light_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener magneticFieldIconOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			stopService(new Intent(getBaseContext(), SensorService.class));
+			((ThermometerApp) getApplication()).saveMagneticField = sensorOnClickListener(
+					(ImageView) v,
+					((ThermometerApp) getApplication()).saveMagneticField,
+					R.drawable.magnetic_field_disabled,
+					R.drawable.magnetic_field,
+					R.string.toast_off_magnetic_field_save_data,
+					R.string.toast_on_magnetic_field_save_data);
+			startService(new Intent(getBaseContext(), SensorService.class));
+		}
+	};
+
+	private OnClickListener temperatueHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.ambient_temp_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_TEMPERATUE);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_TEMPERATURE);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener relativeHumidityHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.relative_humidity_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_RELATIVE_HUMIDITY);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_RELATIVE_HUMIDITY);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener absoluteHumidityHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.absolute_humidity_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_ABSOLUTE_HUMIDITY);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_ABSOLUTE_HUMIDITY);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener pressureHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.pressure_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_PRESSURE);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_PRESSURE);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener dewPointHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.dew_point_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_DEW_POINT);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_DEW_POINT);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener lightHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.light_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_LIGHT);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_LIGHT);
+			startActivity(intent);
+		}
+	};
+
+	private OnClickListener magneticFieldHistoryOnClickListener = new OnClickListener()
+	{
+		@Override
+		public void onClick(View v)
+		{
+			Intent intent = new Intent(getBaseContext(),
+					HistoryPlotActivity.class);
+			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
+					.getString(R.string.magnetic_field_title));
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_TABLE_NAME,
+					DbHelper.TABLE_MAGNETIC_FIELD);
+			intent.putExtra(HistoryPlotActivity.INTENT_EXTRA_UNIT,
+					HistoryPlotActivity.UNIT_MAGNETIC_FIELD);
+			startActivity(intent);
+		}
+	};
 }

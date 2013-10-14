@@ -19,6 +19,7 @@ public class SensorService extends Service implements SensorEventListener
 {
 	static final String TAG = "SensorService";
 
+	ThermometerApp app;
 	SharedPreferences preferences;
 
 	SensorData sensorData;
@@ -26,20 +27,14 @@ public class SensorService extends Service implements SensorEventListener
 	SensorManager sensorManager;
 	Sensor[] sensors = new Sensor[SENSORS_COUNT];
 
-	static final int S_TEMPRATURE = 0;
+	static final String INTENT_EXTRA_SENSOR = "sensor_to_unregister";
+
+	static final int S_TEMPERATURE = 0;
 	static final int S_RELATIVE_HUMIDITY = 1;
 	static final int S_PRESSURE = 2;
 	static final int S_LIGHT = 3;
 	static final int S_MAGNETIC_FIELD = 4;
 	static final int SENSORS_COUNT = 5;
-
-	boolean showTemprature;
-	boolean showRelativeHumidity;
-	boolean showAbsoluteHumidity;
-	boolean showPressure;
-	boolean showDewPoint;
-	boolean showLight;
-	boolean showMagneticField;
 
 	float temperature;
 	float relativeHumidity;
@@ -54,18 +49,20 @@ public class SensorService extends Service implements SensorEventListener
 	{
 		super.onCreate();
 
-		sensorData = ((ThermometerApp) getApplication()).getSensorData();
+		app = (ThermometerApp) getApplication();
+
+		sensorData = app.getSensorData();
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 		{
-			sensors[S_TEMPRATURE] = sensorManager
+			sensors[S_TEMPERATURE] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 			sensors[S_RELATIVE_HUMIDITY] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
 		} else
-			sensors[S_TEMPRATURE] = sensorManager
+			sensors[S_TEMPERATURE] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_TEMPERATURE);
 
 		sensors[S_PRESSURE] = sensorManager
@@ -82,54 +79,33 @@ public class SensorService extends Service implements SensorEventListener
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		// get current preferences
-		preferences = ((ThermometerApp) getApplication()).preferences;
-
-		// get from preferences which sensors to show
-		showTemprature = preferences.getBoolean(
-				getResources().getString(R.string.ambient_temp_key), true);
-		showRelativeHumidity = preferences.getBoolean(
-				getResources().getString(R.string.relative_humidity_key), true);
-		showAbsoluteHumidity = preferences
-				.getBoolean(
-						getResources()
-								.getString(R.string.absolute_humidity_key),
-						false);
-		showPressure = preferences.getBoolean(
-				getResources().getString(R.string.pressure_key), true);
-		showDewPoint = preferences.getBoolean(
-				getResources().getString(R.string.dew_point_key), false);
-		showLight = preferences.getBoolean(
-				getResources().getString(R.string.light_key), false);
-		showMagneticField = preferences.getBoolean(
-				getResources().getString(R.string.magnetic_field_key), false);
-
 		// register chosen sensors
-		if (showTemprature || showAbsoluteHumidity || showDewPoint)
+		if (app.saveTemperature || app.saveAbsoluteHumidity || app.saveDewPoint)
 		{
-			sensorManager.registerListener(this, sensors[S_TEMPRATURE],
+			sensorManager.registerListener(this, sensors[S_TEMPERATURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Temperature sensor registered");
 		}
-		if (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)
+		if (app.saveRelativeHumidity || app.saveAbsoluteHumidity
+				|| app.saveDewPoint)
 		{
 			sensorManager.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Relative humidity sensor registered");
 		}
-		if (showPressure)
+		if (app.savePressure)
 		{
 			sensorManager.registerListener(this, sensors[S_PRESSURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Pressure sensor registered");
 		}
-		if (showLight)
+		if (app.saveLight)
 		{
 			sensorManager.registerListener(this, sensors[S_LIGHT],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Light sensor registered");
 		}
-		if (showMagneticField)
+		if (app.saveMagneticField)
 		{
 			sensorManager.registerListener(this, sensors[S_MAGNETIC_FIELD],
 					SensorManager.SENSOR_DELAY_UI);
@@ -169,7 +145,7 @@ public class SensorService extends Service implements SensorEventListener
 	{
 		Date date = new Date();
 
-		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE]))
+		if (app.saveTemperature && event.sensor.equals(sensors[S_TEMPERATURE]))
 		{
 			temperature = event.values[0];
 
@@ -179,7 +155,7 @@ public class SensorService extends Service implements SensorEventListener
 			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
-		if (showRelativeHumidity
+		if (app.saveRelativeHumidity
 				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY]))
 		{
 			relativeHumidity = event.values[0];
@@ -191,14 +167,14 @@ public class SensorService extends Service implements SensorEventListener
 					+ relativeHumidity);
 		}
 
-		if (showAbsoluteHumidity
-				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
+		if (app.saveAbsoluteHumidity
+				&& (event.sensor.equals(sensors[S_TEMPERATURE]) || event.sensor
 						.equals(sensors[S_RELATIVE_HUMIDITY])))
 		{
 			updateAbsoluteHumidity();
 		}
 
-		if (showPressure && event.sensor.equals(sensors[S_PRESSURE]))
+		if (app.savePressure && event.sensor.equals(sensors[S_PRESSURE]))
 		{
 			pressure = event.values[0];
 
@@ -208,14 +184,14 @@ public class SensorService extends Service implements SensorEventListener
 			Log.d(TAG, "Got pressure sensor event: " + pressure);
 		}
 
-		if (showDewPoint
-				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
+		if (app.saveDewPoint
+				&& (event.sensor.equals(sensors[S_TEMPERATURE]) || event.sensor
 						.equals(sensors[S_RELATIVE_HUMIDITY])))
 		{
 			updateDewPoint();
 		}
 
-		if (showLight && event.sensor.equals(sensors[S_LIGHT]))
+		if (app.saveLight && event.sensor.equals(sensors[S_LIGHT]))
 		{
 			light = event.values[0];
 
@@ -225,7 +201,8 @@ public class SensorService extends Service implements SensorEventListener
 			Log.d(TAG, "Got light sensor event: " + light);
 		}
 
-		if (showMagneticField && event.sensor.equals(sensors[S_MAGNETIC_FIELD]))
+		if (app.saveMagneticField
+				&& event.sensor.equals(sensors[S_MAGNETIC_FIELD]))
 		{
 			float magneticFieldX = event.values[0];
 			float magneticFieldY = event.values[1];

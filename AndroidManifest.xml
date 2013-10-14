@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pl.narfsoftware.thermometer"
     android:installLocation="auto"
-    android:versionCode="3"
-    android:versionName="1.3" >
+    android:versionCode="5"
+    android:versionName="1.5" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -27,14 +27,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="pl.narfsoftware.thermometer.HistoryMenuActivity"
-            android:label="@string/title_activity_history"
-            android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="pl.narfsoftware.thermometer.DataPane" />
-        </activity>
-        <activity
             android:name="pl.narfsoftware.thermometer.SettingsActivity"
             android:label="@string/prefs_header"
             android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
@@ -45,10 +37,10 @@
         <activity
             android:name="pl.narfsoftware.thermometer.HistoryPlotActivity"
             android:label="@string/title_activity_history_plot"
-            android:parentActivityName="pl.narfsoftware.thermometer.HistoryMenuActivity" >
+            android:parentActivityName="pl.narfsoftware.thermometer.DataPane" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="pl.narfsoftware.thermometer.HistoryMenuActivity" />
+                android:value="pl.narfsoftware.thermometer.DataPane" />
         </activity>
 
         <service android:name="pl.narfsoftware.thermometer.SensorService" >

@@ -100,7 +100,7 @@
     <string name="data_erased_hint_toast">Wyłacz najpierw zapisywanie danych.</string>
     <string name="no_data_to_erase">Brak danych do usunięcia.</string>
     <string name="no_data_info_toast">Brak danych&#8230;</string>
-    <string name="no_data_hint_toast">Przejdź do ustawień, żeby zacząć zapisywać dane.</string>
+    <string name="no_data_hint_toast">Wybrany sensor nie działa w trybie zapisu danych.</string>
     <string name="prefs_date_format_key">date_format</string>
     <string name="prefs_date_format_title">Format daty</string>
     <string name="prefs_time_format_key">time_format</string>
@@ -232,7 +232,7 @@
     </string-array>
 
     <string name="title_activity_help">Pomoc</string>
-    <string name="help_text">Sensory\nEkran główny wyświtla wybrane w ustawieniach sensory. Jeśli aplikacja odbiera dane z odpowiedniego sensora, są one wyświetlane. W przeciwnym wypadku wyświetla się \"Brak danych\". Dokładność danych zależy od jakości urządzeń. Aplikacja tylko wyświetla otrzymywane dane. Istnieje również taka możliwość, że twoje urządzenie nie posiada wybranego sensora. W takim wypadku wyświtli się wiadomość \"Sensor niedostępny\"\n\nZapis danych\nŻaby móc zobaczyć historię na wykresie musisz najpierw zaznaczyć opcję zapisu danych w ustawieniach. Jadnak musisz być świadom tego, że spowoduje to utrzymywanie sensora aktywnym, nawet jeśli aplikacja będzie zamknięta. W efekcie dorpowadzi to do wysokiego zużycia baterii. Pamiętaj więc, żeby zawsze wyłączyć opcję zapisu danych jeśli nie będziesz już dłużej tego potrzebował. Domyślnie opcja ta jest wyłączona.</string>
+    <string name="help_text">Sensory\nEkran główny wyświtla wybrane w ustawieniach sensory. Jeśli aplikacja odbiera dane z odpowiedniego sensora, są one wyświetlane. W przeciwnym wypadku wyświetla się \"Brak danych\". Dokładność danych zależy od jakości urządzeń. Aplikacja tylko wyświetla otrzymywane dane. Istnieje również taka możliwość, że twoje urządzenie nie posiada wybranego sensora. W takim wypadku wyświtli się wiadomość \"Sensor niedostępny\"\n\nZapis danych\nŻeby móc zobaczyć historię odebranych danych na wykresie musisz najpierw uaktywnić opcję ich zapisu przez kliknięcia na iconę wybranego sensora w oknie głównym. Jadnak musisz być świadom tego, że spowoduje to utrzymywanie sensora aktywnym, nawet jeśli aplikacja będzie zamknięta. W efekcie doprowadzi to do wysokiego zużycia baterii. Pamiętaj więc, żeby zawsze wyłączyć opcję zapisu danych jeśli nie będziesz już dłużej tego potrzebował. Domyślnie opcja ta jest wyłączona.</string>
     <string name="action_help_title">Pomoc</string>
     <string name="title_activity_about">Informacje</string>
     <string name="about_site_header">Odwiedź naszą stronę</string>
@@ -242,11 +242,25 @@
     <string name="logo_description">NarfSoftware Logo</string>
     <string name="action_about_title">Informacje</string>
     <string name="about_header">Termometr Plus</string>
-    <string name="about_subheader">wersja 1.3</string>
+    <string name="about_subheader">wersja 1.5</string>
     <string name="about_text">Oczekujemy na wiadomość od Was. Przesyłacie inormacje o znalezionych błedach, sugestie usprawnień lub jeśli chcecie dodać tłumaczenie. Będziemy wdzięczni, jeśli zdecydujecie się ocenić nasze aplikacje i zostawić komentarz na Google Market.</string>
     <string name="alert_dialog_erase_data_text">Na pewno chcesz usunąć całą historię?</string>
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
+    <string name="toast_on_temperature_save_data">Zapis danych dla temperatury włączony</string>
+    <string name="toast_off_temperature_save_data">Zapis danych dla temperatury wyłączony</string>
+    <string name="toast_on_relative_humidity_save_data">Zapis danych dla wilgotności względnej włączony</string>
+    <string name="toast_off_relative_humidity_save_data">Zapis danych dla wilgotności względnej wyłączony</string>
+    <string name="toast_on_absolute_humidity_save_data">Zapis danych dla wilgotności bezwzględnej włączony</string>
+    <string name="toast_off_absolute_humidity_save_data">Zapis danych dla wilgotności bezwzględnej wyłączony</string>
+    <string name="toast_on_pressure_save_data">Zapis danych dla ciśnienia włączony</string>
+    <string name="toast_off_pressure_save_data">Zapis danych dla ciśnienia wyłączony</string>
+    <string name="toast_on_dew_point_save_data">Zapis danych dla punktu rosy włączony</string>
+    <string name="toast_off_dew_point_save_data">Zapis danych dla punktu rosy wyłączony</string>
+    <string name="toast_on_light_save_data">Zapis danych dla oświetlenia włączony</string>
+    <string name="toast_off_light_save_data">Zapis danych dla oświetlenia wyłączony</string>
+    <string name="toast_on_magnetic_field_save_data">Zapis danych dla pola magnetyczniego włączony</string>
+    <string name="toast_off_magnetic_field_save_data">Zapis danych dla pola magnetycznego wyłączony</string>
 
     <!-- Label for the "Done" button on the far left of action mode toolbars. -->
     <string name="abc_action_mode_done">Done</string>
