@@ -1,5 +1,6 @@
 package pl.narfsoftware.thermometer;
 
+
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;

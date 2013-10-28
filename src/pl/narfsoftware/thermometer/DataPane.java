@@ -39,8 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 @SuppressWarnings("deprecation")
-public class DataPane extends ActionBarActivity implements SensorEventListener
-{
+public class DataPane extends ActionBarActivity implements SensorEventListener {
 	static final String TAG = "DataPane";
 
 	Context context;
@@ -136,8 +135,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	private AlertDialog eraseDataDialog;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_data_pane);
 
@@ -151,21 +149,19 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		getSensors();
 
+		checkSensorsAvailability();
+
 		Log.d(TAG, "onCreated");
 	}
 
 	@Override
-	public void onStart()
-	{
+	public void onStart() {
 		super.onStart();
 
-		minuteChangeReceiver = new BroadcastReceiver()
-		{
+		minuteChangeReceiver = new BroadcastReceiver() {
 			@Override
-			public void onReceive(Context ctx, Intent intent)
-			{
-				if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0)
-				{
+			public void onReceive(Context ctx, Intent intent) {
+				if (intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0) {
 					Calendar calendar = Calendar.getInstance(Locale
 							.getDefault());
 					calendar.setTimeInMillis(new Date().getTime());
@@ -181,8 +177,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 
 		customize();
@@ -203,12 +198,10 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		addDateAndTimeRow();
 
 		addChosenSensorsTextView();
-
 	}
 
 	@Override
-	public void onPause()
-	{
+	public void onPause() {
 		super.onPause();
 
 		// unregister sensors, yet no longer needed
@@ -217,8 +210,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	}
 
 	@Override
-	public void onStop()
-	{
+	public void onStop() {
 		super.onStop();
 
 		if (minuteChangeReceiver != null)
@@ -231,26 +223,22 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 	}
 
 	@Override
-	protected void onDestroy()
-	{
+	protected void onDestroy() {
 		super.onDestroy();
 
 		sensorManager.unregisterListener(this);
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.data_pane, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch (item.getItemId())
-		{
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
 		case R.id.action_settings:
 			startActivity(new Intent(this, SettingsActivity.class));
 			return true;
@@ -268,12 +256,10 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			builder.setTitle(R.string.action_clear_data)
 					.setMessage(R.string.alert_dialog_erase_data_text)
 					.setPositiveButton(R.string.yes,
-							new DialogInterface.OnClickListener()
-							{
+							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog,
-										int which)
-								{
+										int which) {
 									((ThermometerApp) getApplication())
 											.getSensorData().deleteAll();
 									Toast.makeText(
@@ -285,13 +271,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 								}
 							})
 					.setNegativeButton(R.string.no,
-							new DialogInterface.OnClickListener()
-							{
+							new DialogInterface.OnClickListener() {
 
 								@Override
 								public void onClick(DialogInterface dialog,
-										int which)
-								{
+										int which) {
 									eraseDataDialog.cancel();
 								}
 							});
@@ -306,36 +290,29 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	}
 
-	private void getOverflowMenu()
-	{
-		try
-		{
+	private void getOverflowMenu() {
+		try {
 			ViewConfiguration config = ViewConfiguration.get(this);
 			Field menuKeyField = ViewConfiguration.class
 					.getDeclaredField("sHasPermanentMenuKey");
-			if (menuKeyField != null)
-			{
+			if (menuKeyField != null) {
 				menuKeyField.setAccessible(true);
 				menuKeyField.setBoolean(config, false);
 			}
-		} catch (Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy)
-	{
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event)
-	{
+	public void onSensorChanged(SensorEvent event) {
 		// TODO Create classes - each one to listen to its own sensor change
-		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE]))
-		{
+		if (showTemprature && event.sensor.equals(sensors[S_TEMPRATURE])) {
 			temperature = event.values[0];
 
 			if (temperatureUnit.equals(getResources().getStringArray(
@@ -354,8 +331,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 
 		if (showRelativeHumidity
-				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY]))
-		{
+				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY])) {
 			relativeHumidity = event.values[0];
 
 			tvRelativeHumidity.setText(String.format("%.0f", relativeHumidity)
@@ -367,13 +343,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		if (showAbsoluteHumidity
 				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
-						.equals(sensors[S_RELATIVE_HUMIDITY])))
-		{
+						.equals(sensors[S_RELATIVE_HUMIDITY]))) {
 			updateAbsoluteHumidity();
 		}
 
-		if (showPressure && event.sensor.equals(sensors[S_PRESSURE]))
-		{
+		if (showPressure && event.sensor.equals(sensors[S_PRESSURE])) {
 			pressure = event.values[0];
 
 			tvPressure.setText(String.format("%.0f", pressure) + " hPa");
@@ -383,13 +357,11 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 		if (showDewPoint
 				&& (event.sensor.equals(sensors[S_TEMPRATURE]) || event.sensor
-						.equals(sensors[S_RELATIVE_HUMIDITY])))
-		{
+						.equals(sensors[S_RELATIVE_HUMIDITY]))) {
 			updateDewPoint();
 		}
 
-		if (showLight && event.sensor.equals(sensors[S_LIGHT]))
-		{
+		if (showLight && event.sensor.equals(sensors[S_LIGHT])) {
 			light = event.values[0];
 
 			tvLight.setText(String.format("%.0f", light) + " lx");
@@ -397,8 +369,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			Log.d(TAG, "Got light sensor event: " + light);
 		}
 
-		if (showMagneticField && event.sensor.equals(sensors[S_MAGNETIC_FIELD]))
-		{
+		if (showMagneticField && event.sensor.equals(sensors[S_MAGNETIC_FIELD])) {
 			float magneticFieldX = event.values[0];
 			float magneticFieldY = event.values[1];
 			float magneticFieldZ = event.values[2];
@@ -411,8 +382,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	}
 
-	private void updateAbsoluteHumidity()
-	{
+	private void updateAbsoluteHumidity() {
 		absoluteHumidity = (float) (ABSOLUTE_HUMIDITY_CONSTANT * (relativeHumidity
 				/ HUNDRED_PERCENT
 				* A
@@ -424,8 +394,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
 	}
 
-	private void updateDewPoint()
-	{
+	private void updateDewPoint() {
 		double h = Math.log(relativeHumidity / HUNDRED_PERCENT)
 				+ (M * temperature) / (TN + temperature);
 		dewPoint = (float) (TN * h / (M - h));
@@ -446,8 +415,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		Log.d(TAG, "Dew point updated: " + dewPoint);
 	}
 
-	private void getSensors()
-	{
+	private void getSensors() {
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			sensors[S_TEMPRATURE] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
@@ -468,8 +436,46 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 	}
 
-	private void initTextViews()
-	{
+	private void checkSensorsAvailability() {
+		try {
+			hasTempratureSensor = sensorManager.registerListener(this,
+					sensors[S_TEMPRATURE], SensorManager.SENSOR_DELAY_UI);
+		} catch (Exception e) {
+			hasTempratureSensor = false;
+		}
+		try {
+			hasRelativeHumiditySensor = sensorManager
+					.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
+							SensorManager.SENSOR_DELAY_UI);
+		} catch (Exception e) {
+			hasRelativeHumiditySensor = false;
+		}
+		try {
+			hasPressureSensor = sensorManager.registerListener(this,
+					sensors[S_PRESSURE], SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Pressure sensor registered");
+		} catch (Exception e) {
+			hasPressureSensor = false;
+		}
+		try {
+			hasLightSensor = sensorManager.registerListener(this,
+					sensors[S_LIGHT], SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Light sensor registered");
+		} catch (Exception e) {
+			hasLightSensor = false;
+		}
+		try {
+			hasMagneticFieldSensor = sensorManager.registerListener(this,
+					sensors[S_MAGNETIC_FIELD], SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Magnetic field sensor registered");
+		} catch (Exception e) {
+			hasMagneticFieldSensor = false;
+		}
+
+		sensorManager.unregisterListener(this);
+	}
+
+	private void initTextViews() {
 		// initialize TextViews
 		initializeTextViewSensor(tvTemprature = new TextView(this),
 				hasTempratureSensor);
@@ -490,8 +496,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		time = new TextView(this);
 	}
 
-	private void initializeTextViewSensor(TextView tvSensor, boolean hasSensor)
-	{
+	private void initializeTextViewSensor(TextView tvSensor, boolean hasSensor) {
 		tvSensor.setGravity(Gravity.CENTER);
 		tvSensor.setTextAppearance(this, android.R.style.TextAppearance_Large);
 		if (!hasSensor)
@@ -501,8 +506,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 			tvSensor.setText(getResources().getString(R.string.sensor_no_data));
 	}
 
-	private void customize()
-	{
+	private void customize() {
 		// get current preferences
 		preferences = ((ThermometerApp) getApplication()).preferences;
 
@@ -527,8 +531,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				DEFAULT_TIME_FORMAT);
 	}
 
-	private void setShowSensors()
-	{
+	private void setShowSensors() {
 		// get current preferences
 		preferences = ((ThermometerApp) getApplication()).preferences;
 
@@ -553,78 +556,38 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 				getResources().getString(R.string.magnetic_field_key), false);
 	}
 
-	private void registerChosenSensors()
-	{
+	private void registerChosenSensors() {
 		// TODO Register sensors to their own listener
-		if (showTemprature || showAbsoluteHumidity || showDewPoint)
-		{
-			try
-			{
-				hasTempratureSensor = sensorManager.registerListener(this,
-						sensors[S_TEMPRATURE], SensorManager.SENSOR_DELAY_UI) ? true
-						: false;
-				Log.d(TAG, "Temperature sensor registered");
-			} catch (Exception e)
-			{
-				hasTempratureSensor = false;
-			}
+		if (hasTempratureSensor
+				&& (showTemprature || showAbsoluteHumidity || showDewPoint)) {
+			sensorManager.registerListener(this, sensors[S_TEMPRATURE],
+					SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Temperature sensor registered");
 		}
-		if (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)
-		{
-			try
-			{
-				hasRelativeHumiditySensor = sensorManager.registerListener(
-						this, sensors[S_RELATIVE_HUMIDITY],
-						SensorManager.SENSOR_DELAY_UI) ? true : false;
-				Log.d(TAG, "Relative humidity sensor registered");
-			} catch (Exception e)
-			{
-				hasRelativeHumiditySensor = false;
-			}
+		if (hasRelativeHumiditySensor
+				&& (showRelativeHumidity || showAbsoluteHumidity || showDewPoint)) {
+			sensorManager.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
+					SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Relative humidity sensor registered");
 		}
-		if (showPressure)
-		{
-			try
-			{
-				hasPressureSensor = sensorManager.registerListener(this,
-						sensors[S_PRESSURE], SensorManager.SENSOR_DELAY_UI) ? true
-						: false;
-				Log.d(TAG, "Pressure sensor registered");
-			} catch (Exception e)
-			{
-				hasPressureSensor = false;
-			}
+		if (hasPressureSensor && showPressure) {
+			sensorManager.registerListener(this, sensors[S_PRESSURE],
+					SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Pressure sensor registered");
 		}
-		if (showLight)
-		{
-			try
-			{
-				hasLightSensor = sensorManager.registerListener(this,
-						sensors[S_LIGHT], SensorManager.SENSOR_DELAY_UI) ? true
-						: false;
-				Log.d(TAG, "Light sensor registered");
-			} catch (Exception e)
-			{
-				hasLightSensor = false;
-			}
+		if (hasLightSensor && showLight) {
+			sensorManager.registerListener(this, sensors[S_LIGHT],
+					SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Light sensor registered");
 		}
-		if (showMagneticField)
-		{
-			try
-			{
-				hasMagneticFieldSensor = sensorManager.registerListener(this,
-						sensors[S_MAGNETIC_FIELD],
-						SensorManager.SENSOR_DELAY_UI) ? true : false;
-				Log.d(TAG, "Magnetic field sensor registered");
-			} catch (Exception e)
-			{
-				hasMagneticFieldSensor = false;
-			}
+		if (showMagneticField) {
+			sensorManager.registerListener(this, sensors[S_MAGNETIC_FIELD],
+					SensorManager.SENSOR_DELAY_UI);
+			Log.d(TAG, "Magnetic field sensor registered");
 		}
 	}
 
-	private void removeTextViewsParent()
-	{
+	private void removeTextViewsParent() {
 		// remove TextViews parents
 		if (tvTemprature.getParent() != null)
 			((LinearLayout) tvTemprature.getParent()).removeView(tvTemprature);
@@ -645,8 +608,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					.removeView(tvMagneticField);
 	}
 
-	private void addChosenSensorsTextView()
-	{
+	private void addChosenSensorsTextView() {
 		if (showTemprature)
 			addSensorDataRow(
 					((ThermometerApp) getApplication()).saveTemperature ? R.drawable.temprature
@@ -704,8 +666,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private void addSensorDataRow(int iconResId, int titleResId,
 			TextView tvSensor, OnClickListener iconOnClickListener,
-			OnClickListener textOnClickListener)
-	{
+			OnClickListener textOnClickListener) {
 		sensorDataRow = new LinearLayout(this);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -745,8 +706,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		dataPaneBaseLayout.addView(dividingLine);
 	}
 
-	private void addDateAndTimeRow()
-	{
+	private void addDateAndTimeRow() {
 		Calendar calendar = Calendar.getInstance(Locale.getDefault());
 		calendar.setTimeInMillis(new Date().getTime());
 
@@ -782,8 +742,7 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 
 	private boolean sensorOnClickListener(ImageView sensorIcon,
 			boolean saveSensorBeforeClicked, int disabledIconResId,
-			int iconResId, int toastOffResId, int toastOnResId)
-	{
+			int iconResId, int toastOffResId, int toastOnResId) {
 		sensorIcon.setImageResource(saveSensorBeforeClicked ? disabledIconResId
 				: iconResId);
 		Toast.makeText(getApplicationContext(),
@@ -792,11 +751,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		return !saveSensorBeforeClicked;
 	}
 
-	private OnClickListener temperatureIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener temperatureIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveTemperature = sensorOnClickListener(
 					(ImageView) v,
@@ -804,15 +761,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.temprature_disabled, R.drawable.temprature,
 					R.string.toast_off_temperature_save_data,
 					R.string.toast_on_temperature_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener relativeHumidityIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener relativeHumidityIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveRelativeHumidity = sensorOnClickListener(
 					(ImageView) v,
@@ -821,15 +777,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.relative_humidity,
 					R.string.toast_off_relative_humidity_save_data,
 					R.string.toast_on_relative_humidity_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener absoluteHumidityIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener absoluteHumidityIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveAbsoluteHumidity = sensorOnClickListener(
 					(ImageView) v,
@@ -838,15 +793,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.absolute_humidity,
 					R.string.toast_off_absolute_humidity_save_data,
 					R.string.toast_on_absolute_humidity_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener pressureIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener pressureIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).savePressure = sensorOnClickListener(
 					(ImageView) v,
@@ -854,15 +808,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.pressure_disabled, R.drawable.pressure,
 					R.string.toast_off_pressure_save_data,
 					R.string.toast_on_pressure_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener dewPointIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener dewPointIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveDewPoint = sensorOnClickListener(
 					(ImageView) v,
@@ -870,15 +823,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.dew_point_disabled, R.drawable.dew_point,
 					R.string.toast_off_dew_point_save_data,
 					R.string.toast_on_dew_point_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener lightIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener lightIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveLight = sensorOnClickListener(
 					(ImageView) v,
@@ -886,15 +838,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.light_disabled, R.drawable.light,
 					R.string.toast_off_light_save_data,
 					R.string.toast_on_light_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener magneticFieldIconOnClickListener = new OnClickListener()
-	{
+	private OnClickListener magneticFieldIconOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			stopService(new Intent(getBaseContext(), SensorService.class));
 			((ThermometerApp) getApplication()).saveMagneticField = sensorOnClickListener(
 					(ImageView) v,
@@ -903,15 +854,14 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 					R.drawable.magnetic_field,
 					R.string.toast_off_magnetic_field_save_data,
 					R.string.toast_on_magnetic_field_save_data);
-			startService(new Intent(getBaseContext(), SensorService.class));
+			if (((ThermometerApp) getApplication()).saveAnySensor())
+				startService(new Intent(getBaseContext(), SensorService.class));
 		}
 	};
 
-	private OnClickListener temperatueHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener temperatueHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -924,11 +874,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener relativeHumidityHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener relativeHumidityHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -941,11 +889,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener absoluteHumidityHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener absoluteHumidityHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -958,11 +904,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener pressureHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener pressureHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -975,11 +919,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener dewPointHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener dewPointHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -992,11 +934,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener lightHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener lightHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()
@@ -1009,11 +949,9 @@ public class DataPane extends ActionBarActivity implements SensorEventListener
 		}
 	};
 
-	private OnClickListener magneticFieldHistoryOnClickListener = new OnClickListener()
-	{
+	private OnClickListener magneticFieldHistoryOnClickListener = new OnClickListener() {
 		@Override
-		public void onClick(View v)
-		{
+		public void onClick(View v) {
 			Intent intent = new Intent(getBaseContext(),
 					HistoryPlotActivity.class);
 			intent.putExtra(HistoryPlotActivity.INTENT_ORIGIN, getResources()

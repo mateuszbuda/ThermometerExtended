@@ -7,8 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class ThermometerApp extends Application implements
-		OnSharedPreferenceChangeListener
-{
+		OnSharedPreferenceChangeListener {
 	static final String TAG = "ThermometerApp";
 
 	SharedPreferences preferences;
@@ -24,8 +23,7 @@ public class ThermometerApp extends Application implements
 	private SensorData sensorData;
 
 	@Override
-	public void onCreate()
-	{
+	public void onCreate() {
 		super.onCreate();
 
 		preferences = PreferenceManager
@@ -37,8 +35,7 @@ public class ThermometerApp extends Application implements
 		Log.d(TAG, "onCreated");
 	}
 
-	public SensorData getSensorData()
-	{
+	public SensorData getSensorData() {
 		if (sensorData == null)
 			sensorData = new SensorData(getApplicationContext());
 
@@ -47,10 +44,16 @@ public class ThermometerApp extends Application implements
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-			String key)
-	{
+			String key) {
 		preferences = sharedPreferences;
 		Log.d(TAG, "onSharedPreferenceChanged for key: " + key);
 
+	}
+
+	public boolean saveAnySensor() {
+		return this.saveTemperature || this.saveAbsoluteHumidity
+				|| this.saveDewPoint || this.saveLight
+				|| this.saveMagneticField || this.savePressure
+				|| this.saveRelativeHumidity;
 	}
 }

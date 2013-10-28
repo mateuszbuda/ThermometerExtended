@@ -121,7 +121,7 @@ public class SensorService extends Service implements SensorEventListener
 	{
 		super.onDestroy();
 
-		// unregister sensors, yet no longer needed
+		// unregister sensors, yet no longer need
 		sensorManager.unregisterListener(this);
 		Log.d(TAG, "Sensors unregistered");
 
