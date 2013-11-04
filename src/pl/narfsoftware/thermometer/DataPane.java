@@ -198,7 +198,6 @@ public class DataPane extends ActionBarActivity implements SensorEventListener {
 		addDateAndTimeRow();
 
 		addChosenSensorsTextView();
-
 	}
 
 	@Override
