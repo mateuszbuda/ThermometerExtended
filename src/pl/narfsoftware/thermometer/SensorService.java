@@ -15,8 +15,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 @SuppressWarnings("deprecation")
-public class SensorService extends Service implements SensorEventListener
-{
+public class SensorService extends Service implements SensorEventListener {
 	static final String TAG = "SensorService";
 
 	ThermometerApp app;
@@ -45,8 +44,7 @@ public class SensorService extends Service implements SensorEventListener
 	float magneticField;
 
 	@Override
-	public void onCreate()
-	{
+	public void onCreate() {
 		super.onCreate();
 
 		app = (ThermometerApp) getApplication();
@@ -55,8 +53,7 @@ public class SensorService extends Service implements SensorEventListener
 
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-		{
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			sensors[S_TEMPERATURE] = sensorManager
 					.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 			sensors[S_RELATIVE_HUMIDITY] = sensorManager
@@ -77,36 +74,30 @@ public class SensorService extends Service implements SensorEventListener
 	}
 
 	@Override
-	public int onStartCommand(Intent intent, int flags, int startId)
-	{
+	public int onStartCommand(Intent intent, int flags, int startId) {
 		// register chosen sensors
-		if (app.saveTemperature || app.saveAbsoluteHumidity || app.saveDewPoint)
-		{
+		if (app.saveTemperature || app.saveAbsoluteHumidity || app.saveDewPoint) {
 			sensorManager.registerListener(this, sensors[S_TEMPERATURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Temperature sensor registered");
 		}
 		if (app.saveRelativeHumidity || app.saveAbsoluteHumidity
-				|| app.saveDewPoint)
-		{
+				|| app.saveDewPoint) {
 			sensorManager.registerListener(this, sensors[S_RELATIVE_HUMIDITY],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Relative humidity sensor registered");
 		}
-		if (app.savePressure)
-		{
+		if (app.savePressure) {
 			sensorManager.registerListener(this, sensors[S_PRESSURE],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Pressure sensor registered");
 		}
-		if (app.saveLight)
-		{
+		if (app.saveLight) {
 			sensorManager.registerListener(this, sensors[S_LIGHT],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Light sensor registered");
 		}
-		if (app.saveMagneticField)
-		{
+		if (app.saveMagneticField) {
 			sensorManager.registerListener(this, sensors[S_MAGNETIC_FIELD],
 					SensorManager.SENSOR_DELAY_UI);
 			Log.d(TAG, "Magnetic field sensor registered");
@@ -117,8 +108,7 @@ public class SensorService extends Service implements SensorEventListener
 	}
 
 	@Override
-	public void onDestroy()
-	{
+	public void onDestroy() {
 		super.onDestroy();
 
 		// unregister sensors, yet no longer needed
@@ -129,24 +119,21 @@ public class SensorService extends Service implements SensorEventListener
 	}
 
 	@Override
-	public IBinder onBind(Intent intent)
-	{
+	public IBinder onBind(Intent intent) {
 		return null;
 	}
 
 	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy)
-	{
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event)
-	{
+	public void onSensorChanged(SensorEvent event) {
 		Date date = new Date();
 
-		if (app.saveTemperature && event.sensor.equals(sensors[S_TEMPERATURE]))
-		{
+		if ((app.saveTemperature || app.saveDewPoint || app.saveAbsoluteHumidity)
+				&& event.sensor.equals(sensors[S_TEMPERATURE])) {
 			temperature = event.values[0];
 
 			sensorData.insert(DbHelper.TABLE_TEMPERATUE,
@@ -155,9 +142,8 @@ public class SensorService extends Service implements SensorEventListener
 			Log.d(TAG, "Got temperature sensor event: " + temperature);
 		}
 
-		if (app.saveRelativeHumidity
-				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY]))
-		{
+		if ((app.saveRelativeHumidity || app.saveDewPoint || app.saveAbsoluteHumidity)
+				&& event.sensor.equals(sensors[S_RELATIVE_HUMIDITY])) {
 			relativeHumidity = event.values[0];
 
 			sensorData.insert(DbHelper.TABLE_RELATIVE_HUMIDITY, (new Timestamp(
@@ -169,13 +155,11 @@ public class SensorService extends Service implements SensorEventListener
 
 		if (app.saveAbsoluteHumidity
 				&& (event.sensor.equals(sensors[S_TEMPERATURE]) || event.sensor
-						.equals(sensors[S_RELATIVE_HUMIDITY])))
-		{
+						.equals(sensors[S_RELATIVE_HUMIDITY]))) {
 			updateAbsoluteHumidity();
 		}
 
-		if (app.savePressure && event.sensor.equals(sensors[S_PRESSURE]))
-		{
+		if (app.savePressure && event.sensor.equals(sensors[S_PRESSURE])) {
 			pressure = event.values[0];
 
 			sensorData.insert(DbHelper.TABLE_PRESSURE,
@@ -186,13 +170,11 @@ public class SensorService extends Service implements SensorEventListener
 
 		if (app.saveDewPoint
 				&& (event.sensor.equals(sensors[S_TEMPERATURE]) || event.sensor
-						.equals(sensors[S_RELATIVE_HUMIDITY])))
-		{
+						.equals(sensors[S_RELATIVE_HUMIDITY]))) {
 			updateDewPoint();
 		}
 
-		if (app.saveLight && event.sensor.equals(sensors[S_LIGHT]))
-		{
+		if (app.saveLight && event.sensor.equals(sensors[S_LIGHT])) {
 			light = event.values[0];
 
 			sensorData.insert(DbHelper.TABLE_LIGHT,
@@ -202,8 +184,7 @@ public class SensorService extends Service implements SensorEventListener
 		}
 
 		if (app.saveMagneticField
-				&& event.sensor.equals(sensors[S_MAGNETIC_FIELD]))
-		{
+				&& event.sensor.equals(sensors[S_MAGNETIC_FIELD])) {
 			float magneticFieldX = event.values[0];
 			float magneticFieldY = event.values[1];
 			float magneticFieldZ = event.values[2];
@@ -216,8 +197,7 @@ public class SensorService extends Service implements SensorEventListener
 		}
 	}
 
-	private void updateAbsoluteHumidity()
-	{
+	private void updateAbsoluteHumidity() {
 		Date date = new Date();
 
 		absoluteHumidity = (float) (DataPane.ABSOLUTE_HUMIDITY_CONSTANT * (relativeHumidity
@@ -232,8 +212,7 @@ public class SensorService extends Service implements SensorEventListener
 		Log.d(TAG, "Absolute humidity updated: " + absoluteHumidity);
 	}
 
-	private void updateDewPoint()
-	{
+	private void updateDewPoint() {
 		Date date = new Date();
 
 		double h = Math.log(relativeHumidity / DataPane.HUNDRED_PERCENT)
