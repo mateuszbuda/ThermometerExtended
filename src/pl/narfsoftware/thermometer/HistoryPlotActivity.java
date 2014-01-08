@@ -25,8 +25,7 @@ import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.LineGraphView;
 
 // TODO needs refactoring
-public class HistoryPlotActivity extends ActionBarActivity
-{
+public class HistoryPlotActivity extends ActionBarActivity {
 	static final String TAG = "HistoryPlotActivity";
 
 	boolean saveData;
@@ -68,8 +67,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	static final long ONE_SECOND = 1000;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_history_plot);
 		setupActionBar();
@@ -101,8 +99,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		// TODO needs refactoring
 		super.onResume();
 
@@ -138,8 +135,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 		dataSeries = new GraphViewSeries(sensorData.query(getIntent()
 				.getExtras().getString(INTENT_EXTRA_TABLE_NAME)));
 
-		if (dataSeries.getValues().length <= 1)
-		{
+		if (dataSeries.getValues().length <= 1) {
 			graphView.getGraphViewStyle().setVerticalLabelsColor(
 					Color.parseColor(PreferenceManager
 							.getDefaultSharedPreferences(this).getString(
@@ -153,8 +149,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 						+ getResources().getString(R.string.no_data_hint_toast);
 			Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
 
-		} else
-		{
+		} else {
 			// set unit
 			tvUnit.setText(getIntent().getExtras().getString(INTENT_EXTRA_UNIT));
 			backgroundLayout.addView(tvUnit);
@@ -177,13 +172,10 @@ public class HistoryPlotActivity extends ActionBarActivity
 		// add graph view
 		backgroundLayout.addView(graphView);
 
-		timer = new Runnable()
-		{
+		timer = new Runnable() {
 			@Override
-			public void run()
-			{
-				if (saveData)
-				{
+			public void run() {
+				if (saveData) {
 					dataSeries.resetData(sensorData.query(getIntent()
 							.getExtras().getString(INTENT_EXTRA_TABLE_NAME)));
 
@@ -193,13 +185,10 @@ public class HistoryPlotActivity extends ActionBarActivity
 			}
 		};
 
-		refresher = new Runnable()
-		{
+		refresher = new Runnable() {
 			@Override
-			public void run()
-			{
-				if (saveData && dataSeries.getValues().length > 1)
-				{
+			public void run() {
+				if (saveData && dataSeries.getValues().length > 1) {
 					// set unit
 					tvUnit.setText(getIntent().getExtras().getString(
 							INTENT_EXTRA_UNIT));
@@ -230,8 +219,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	}
 
 	@Override
-	protected void onPause()
-	{
+	protected void onPause() {
 		super.onPause();
 
 		handler.removeCallbacks(timer);
@@ -239,8 +227,7 @@ public class HistoryPlotActivity extends ActionBarActivity
 	}
 
 	@Override
-	protected void onStop()
-	{
+	protected void onStop() {
 		super.onStop();
 
 		graphView.removeAllSeries();
@@ -259,27 +246,24 @@ public class HistoryPlotActivity extends ActionBarActivity
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
 	 */
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar()
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-		{
-			getActionBar().setDisplayHomeAsUpEnabled(true);
+	private void setupActionBar() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			android.app.ActionBar actionbar = getActionBar();
+			if (actionbar != null)
+				actionbar.setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		// getMenuInflater().inflate(R.menu.history, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item)
-	{
-		switch (item.getItemId())
-		{
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
 		case android.R.id.home:
 			// This ID represents the Home or Up button. In the case of this
 			// activity, the Up button is shown. Use NavUtils to allow users
@@ -295,13 +279,10 @@ public class HistoryPlotActivity extends ActionBarActivity
 		return super.onOptionsItemSelected(item);
 	}
 
-	private CustomLabelFormatter label = new CustomLabelFormatter()
-	{
+	private CustomLabelFormatter label = new CustomLabelFormatter() {
 		@Override
-		public String formatLabel(double value, boolean isValueX)
-		{
-			if (isValueX)
-			{
+		public String formatLabel(double value, boolean isValueX) {
+			if (isValueX) {
 				String date;
 				String time;
 
